@@ -1,3 +1,98 @@
 from django.db import models
 
 # Create your models here.
+class Utente(models.Model):
+    id = models.AutoField(primary_key=True)
+    nome = models.CharField(max_length=100)
+    cognome = models.CharField(max_length=100)
+    email = models.EmailField(max_length=254, unique=True)  # emailfield verifica tutti i requisiti di un indirizzo email
+    password = models.CharField(max_length=128)
+    tipo_utente = models.CharField(max_length=50, choices=[
+        ('privato', 'Privato'),
+        ('azienda', 'Aziendale')
+    ], default='azienda')
+    nome_azienda = models.CharField(max_length=100, blank=True, null=True)
+    data_nascita = models.DateField(blank=True, null=True)
+    eta = models.TimeField(blank=True, null=True)
+
+class RilevamentoAttacco(models.Model):
+    id = models.AutoField(primary_key=True)
+    titolo = models.CharField(max_length=255)
+    descrizione = models.TextField()
+    domanda = models.TextField()
+    numero_domande = models.IntegerField()
+
+class Esecuzione(models.Model):
+    id = models.AutoField(primary_key=True)
+    rilevamento_attacco = models.ForeignKey(RilevamentoAttacco, on_delete=models.CASCADE)
+    utente = models.ForeignKey(Utente, on_delete=models.CASCADE)
+    data_esecuzione = models.DateTimeField(auto_now_add=True)
+    ora_esecuzione= models.TimeField()
+
+class Pdfreport(models.Model):
+    id = models.AutoField(primary_key=True)
+    nome_file = models.CharField(max_length=255)
+    contenuto = models.TextField()
+    data_generazione = models.DateTimeField(auto_now_add=True)
+    dimensione = models.IntegerField()
+    rilevamento_attacco = models.ForeignKey(RilevamentoAttacco, on_delete=models.CASCADE)
+
+class MessaggioSospetto(models.Model):
+    id = models.AutoField(primary_key=True)
+    testo = models.TextField()
+    data_ricezione = models.DateTimeField(auto_now_add=True)
+    mittente = models.CharField(max_length=255)
+    contenuto = models.TextField()
+    stato = models.CharField(max_length=50, choices=[
+        ('in_attesa', 'In attesa'),
+        ('analizzato', 'Analizzato'),
+        ('rifiutato', 'Rifiutato')
+    ], default='in_attesa')
+
+class NumeroTelefonico(models.Model):
+    id = models.AutoField(primary_key=True)
+    numero = models.CharField(max_length=20, unique=True)
+    operatore = models.CharField(max_length=100)
+    stato = models.CharField(max_length=50, choices=[
+        ('in_attesa', 'In attesa'),
+        ('analizzato', 'Analizzato'),
+        ('rifiutato', 'Rifiutato')
+    ], default='in_attesa')
+    tipo = models.CharField(max_length=50, choices=[
+        ('mobile', 'Mobile'),
+        ('fisso', 'Fisso')
+    ], default='mobile')
+
+class RichiestaAnalisi(models.Model):
+    id = models.AutoField(primary_key=True)
+    messaggio_sospetto = models.ForeignKey(MessaggioSospetto, on_delete=models.CASCADE)
+    numero_telefonico = models.ForeignKey(NumeroTelefonico, on_delete=models.CASCADE)
+    data_richiesta = models.DateTimeField(auto_now_add=True)
+    ora_richiesta = models.TimeField()
+    esito = models.TextField()
+
+class EnciclopediaAttacchi(models.Model):
+    id = models.AutoField(primary_key=True)
+    nome_attacco = models.CharField(max_length=255)
+    descrizione = models.TextField()
+    livello_rischio = models.CharField(max_length=50, choices=[
+        ('basso', 'Basso'),
+        ('medio', 'Medio'),
+        ('alto', 'Alto')
+    ], default='basso')
+    contromisure = models.TextField()
+    categoria = models.CharField(max_length=100 ) # Categoria dell'attacco, ad esempio "Phishing", "Malware", ecc.
+
+class Amministratore(models.Model):
+    id = models.AutoField(primary_key=True)
+    nome = models.CharField(max_length=100)
+    cognome = models.CharField(max_length=100)
+    email = models.EmailField(max_length=254, unique=True)
+    permesso = models.CharField(max_length=50 )
+
+class Sistema(models.Model):
+    id = models.AutoField(primary_key=True)
+    nome = models.CharField(max_length=100)
+
+
+
