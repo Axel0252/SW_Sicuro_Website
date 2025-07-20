@@ -1,21 +1,57 @@
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background: white;
-}
-
-header {
-    background-color: #d3d3d3;
-    display: flex;
-    align-items: center;
-    padding: 10px 20px;
-}
-
 .logo-img {
     height: 80px;
-    margin-right: 10px;
 }
+
+/* Intro clinica */
+.intro-box {
+    background-color: #e0f7f7;  /* un azzurro molto chiaro e soft */
+    border-radius: 10px;
+    padding: 20px;
+    font-family: 'Georgia', serif;
+    font-size: 18px;
+    color: #004d4d; /* testo leggermente scuro per contrasto */
+}
+
+.btn-custom {
+    background-color: #bf0c0c; /* stesso rosso navbar per coerenza */
+    color: white;              /* testo bianco per contrasto */
+    border-radius: 30px;
+    padding: 10px 30px;
+    transition: background-color 0.3s;
+    font-size: 18px;
+    text-decoration: none;
+}
+
+.btn-custom:hover {
+    background-color: #8a0909; /* rosso più scuro al passaggio */
+    color: white;
+}
+
+/* tabella orari clinica */
+table {
+    font-family: 'Georgia', serif;
+    background-color: #ffffff; /* bianco pulito */
+    color: #333333;            /* testo scuro per leggibilità */
+    border-collapse: collapse;
+    width: 100%;
+}
+
+thead th {
+    background-color: #bf0c0c; /* rosso navbar */
+    color: white;
+    font-family: 'Georgia', serif;
+    padding: 10px;
+    text-align: left;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f2f2f2; /* righe alternate più chiare */
+}
+
+tbody tr:hover {
+    background-color: #e0f7f7; /* effetto hover leggero */
+}
+
 
 header h1 {
     color: #bf0c0c;
