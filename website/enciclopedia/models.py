@@ -12,15 +12,16 @@ class Utente(models.Model):
         ('azienda', 'Aziendale')
     ], default='azienda')
     nome_azienda = models.CharField(max_length=100, blank=True, null=True)
+    ruolo = models.CharField(max_length=50)
     data_nascita = models.DateField(blank=True, null=True)
     eta = models.TimeField(blank=True, null=True)
 
 class RilevamentoAttacco(models.Model):
     id = models.AutoField(primary_key=True)
     titolo = models.CharField(max_length=255)
-    descrizione = models.TextField()
-    domanda = models.TextField()
+    domande = models.TextField()
     numero_domande = models.IntegerField()
+    categoria = models.CharField(max_length=100)
 
 class Esecuzione(models.Model):
     id = models.AutoField(primary_key=True)
@@ -34,6 +35,7 @@ class Pdfreport(models.Model):
     nome_file = models.CharField(max_length=255)
     contenuto = models.TextField()
     data_generazione = models.DateTimeField(auto_now_add=True)
+    ora_generazione = models.TimeField()
     dimensione = models.IntegerField()
     rilevamento_attacco = models.ForeignKey(RilevamentoAttacco, on_delete=models.CASCADE)
 
@@ -42,22 +44,11 @@ class MessaggioSospetto(models.Model):
     testo = models.TextField()
     data_ricezione = models.DateTimeField(auto_now_add=True)
     mittente = models.CharField(max_length=255)
-    contenuto = models.TextField()
-    stato = models.CharField(max_length=50, choices=[
-        ('in_attesa', 'In attesa'),
-        ('analizzato', 'Analizzato'),
-        ('rifiutato', 'Rifiutato')
-    ], default='in_attesa')
 
 class NumeroTelefonico(models.Model):
     id = models.AutoField(primary_key=True)
     numero = models.CharField(max_length=20, unique=True)
     operatore = models.CharField(max_length=100)
-    stato = models.CharField(max_length=50, choices=[
-        ('in_attesa', 'In attesa'),
-        ('analizzato', 'Analizzato'),
-        ('rifiutato', 'Rifiutato')
-    ], default='in_attesa')
     tipo = models.CharField(max_length=50, choices=[
         ('mobile', 'Mobile'),
         ('fisso', 'Fisso')
@@ -83,16 +74,7 @@ class EnciclopediaAttacchi(models.Model):
     contromisure = models.TextField()
     categoria = models.CharField(max_length=100 ) # Categoria dell'attacco, ad esempio "Phishing", "Malware", ecc.
 
-class Amministratore(models.Model):
-    id = models.AutoField(primary_key=True)
-    nome = models.CharField(max_length=100)
-    cognome = models.CharField(max_length=100)
-    email = models.EmailField(max_length=254, unique=True)
-    permesso = models.CharField(max_length=50 )
 
-class Sistema(models.Model):
-    id = models.AutoField(primary_key=True)
-    nome = models.CharField(max_length=100)
 
 
 
