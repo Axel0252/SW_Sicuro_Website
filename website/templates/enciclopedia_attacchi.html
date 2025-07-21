@@ -4,41 +4,51 @@
 {% block title %}{{ attacco.nome_attacco }} | CyberDefender{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1 class="mb-4 text-center">
-        <i class="bi bi-shield-exclamation text-danger"></i> {{ attacco.nome_attacco }}
+<div class="container mt-5">
+    <h1 class="mb-4 text-center fw-bold fs-3">
+        <i class="bi bi-shield-exclamation text-danger me-2"></i>{{ attacco.nome_attacco }}
     </h1>
 
-    <p>
+    <p class="text-center fs-6">
         <strong>Livello di rischio:</strong>
         {% if attacco.livello_rischio == "alto" %}
-            <span class="badge bg-danger text-uppercase">{{ attacco.livello_rischio }}</span>
+            <span class="badge bg-danger text-uppercase px-3 py-2 fs-7">{{ attacco.livello_rischio }}</span>
         {% elif attacco.livello_rischio == "medio" %}
-            <span class="badge bg-warning text-dark text-uppercase">{{ attacco.livello_rischio }}</span>
+            <span class="badge bg-warning text-dark text-uppercase px-3 py-2 fs-7">{{ attacco.livello_rischio }}</span>
         {% else %}
-            <span class="badge bg-success text-uppercase">{{ attacco.livello_rischio }}</span>
+            <span class="badge bg-success text-uppercase px-3 py-2 fs-7">{{ attacco.livello_rischio }}</span>
         {% endif %}
     </p>
 
-    <hr>
+    <hr class="my-4">
 
-    <h3><i class="bi bi-info-circle-fill text-primary"></i> Descrizione</h3>
-    <p>{{ attacco.descrizione|linebreaksbr }}</p>
+    <section>
+        <h3 class="mb-3 fs-5 fw-semibold">
+            <i class="bi bi-info-circle-fill text-primary me-2"></i>Descrizione
+        </h3>
+        <p class="fs-6 lh-lg mb-4">{{ attacco.descrizione|linebreaksbr }}</p>
+    </section>
 
-    <h3 class="mt-4"><i class="bi bi-shield-check text-success"></i> Contromisure</h3>
-    <p>{{ attacco.contromisure|linebreaksbr }}</p>
+    <section class="mt-5 mb-3">
+        <h3 class="mb-3 fs-5 fw-semibold">
+            <i class="bi bi-shield-check text-success me-2"></i>Contromisure
+        </h3>
+        <p class="fs-6 lh-lg mb-4">{{ attacco.contromisure|linebreaksbr }}</p>
+    </section>
 
-    <hr>
-
-    <a href="{% url 'enciclopedia_indice' %}" class="btn btn-outline-secondary mt-3">
-        <i class="bi bi-arrow-left"></i> Torna all'elenco
+    <a href="{% url 'enciclopedia_indice' %}" class="btn btn-custom fs-6 mb-4">
+        <i class="bi bi-arrow-left me-1"></i> Torna all'elenco
     </a>
 
-    <div class="alert alert-info mt-5 text-center">
-        <h4>Vuoi tenere traccia degli attacchi consultati?</h4>
-        <p>Registrati o accedi alla tua area personale per sfruttare tutte le funzionalità.</p>
-        <a href="#" class="btn btn-danger mt-2">
-            <i class="bi bi-person-lock"></i> Area Privata
+    <hr class="my-5">
+
+    <div class="alert mb-0 text-center fs-6" style="background-color: #f8d7da; color: #8b0000; border: 1px solid #bf0c0c; border-radius: 12px; padding: 25px;">
+        <h5 class="mb-2 fs-6">
+            <i class="bi bi-info-circle me-2"></i> Vuoi tenere traccia degli attacchi consultati?
+        </h5>
+        <p class="mb-3">Registrati o accedi alla tua area personale per sfruttare tutte le funzionalità.</p>
+        <a href="#" class="btn btn-custom fs-6 mt-3 d-inline-block mx-auto">
+            <i class="bi bi-person-lock me-1"></i> Area Privata
         </a>
     </div>
 </div>
