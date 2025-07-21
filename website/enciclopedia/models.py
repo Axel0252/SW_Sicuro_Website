@@ -64,6 +64,10 @@ class RichiestaAnalisi(models.Model):
 
 class EnciclopediaAttacchi(models.Model):
     id = models.AutoField(primary_key=True)
+    categoria = models.CharField(max_length=100)  # Categoria dell'attacco, ad esempio "Phishing", "Malware", ecc.
+
+class Attacco(models.Model):
+    id = models.AutoField(primary_key=True)
     nome_attacco = models.CharField(max_length=255)
     descrizione = models.TextField()
     livello_rischio = models.CharField(
@@ -78,10 +82,11 @@ class EnciclopediaAttacchi(models.Model):
         blank=False
     )
     contromisure = models.TextField()
-    categoria = models.CharField(max_length=100 ) # Categoria dell'attacco, ad esempio "Phishing", "Malware", ecc.
-    utente = models.ForeignKey(Utente, on_delete=models.CASCADE, null=True, blank=True)
+    enciclopediaattacchi = models.ForeignKey(EnciclopediaAttacchi, on_delete=models.CASCADE)
 
-
-
-
-
+class ConsultazioneAttacco(models.Model):
+    id = models.AutoField(primary_key=True)
+    attacco = models.ForeignKey(Attacco, on_delete=models.CASCADE)
+    utente = models.ForeignKey(Utente, on_delete=models.CASCADE)
+    data_consultazione = models.DateTimeField(auto_now_add=True)
+    ora_consultazione = models.TimeField()
