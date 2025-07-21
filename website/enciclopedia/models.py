@@ -14,7 +14,7 @@ class Utente(models.Model):
     nome_azienda = models.CharField(max_length=100, blank=True, null=True)
     ruolo = models.CharField(max_length=50)
     data_nascita = models.DateField(blank=True, null=True)
-    eta = models.TimeField(blank=True, null=True)
+    eta = models.IntegerField(blank=True, null=True)
 
 class RilevamentoAttacco(models.Model):
     id = models.AutoField(primary_key=True)
@@ -66,13 +66,20 @@ class EnciclopediaAttacchi(models.Model):
     id = models.AutoField(primary_key=True)
     nome_attacco = models.CharField(max_length=255)
     descrizione = models.TextField()
-    livello_rischio = models.CharField(max_length=50, choices=[
-        ('basso', 'Basso'),
-        ('medio', 'Medio'),
-        ('alto', 'Alto')
-    ], default='basso')
+    livello_rischio = models.CharField(
+        max_length=100,
+        choices=[
+            ('basso', 'Basso'),
+            ('medio', 'Medio'),
+            ('alto', 'Alto')
+        ],
+        default='basso',
+        null=False,
+        blank=False
+    )
     contromisure = models.TextField()
     categoria = models.CharField(max_length=100 ) # Categoria dell'attacco, ad esempio "Phishing", "Malware", ecc.
+    utente = models.ForeignKey(Utente, on_delete=models.CASCADE, null=True, blank=True)
 
 
 
