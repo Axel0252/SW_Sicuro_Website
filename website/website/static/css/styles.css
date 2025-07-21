@@ -2,56 +2,6 @@
     height: 80px;
 }
 
-/* Intro clinica */
-.intro-box {
-    background-color: #e0f7f7;  /* un azzurro molto chiaro e soft */
-    border-radius: 10px;
-    padding: 20px;
-    font-family: 'Georgia', serif;
-    font-size: 18px;
-    color: #004d4d; /* testo leggermente scuro per contrasto */
-}
-
-.btn-custom {
-    background-color: #bf0c0c; /* stesso rosso navbar per coerenza */
-    color: white;              /* testo bianco per contrasto */
-    border-radius: 30px;
-    padding: 10px 30px;
-    transition: background-color 0.3s;
-    font-size: 18px;
-    text-decoration: none;
-}
-
-.btn-custom:hover {
-    background-color: #8a0909; /* rosso più scuro al passaggio */
-    color: white;
-}
-
-/* tabella orari clinica */
-table {
-    font-family: 'Georgia', serif;
-    background-color: #ffffff; /* bianco pulito */
-    color: #333333;            /* testo scuro per leggibilità */
-    border-collapse: collapse;
-    width: 100%;
-}
-
-thead th {
-    background-color: #bf0c0c; /* rosso navbar */
-    color: white;
-    font-family: 'Georgia', serif;
-    padding: 10px;
-    text-align: left;
-}
-
-tbody tr:nth-child(even) {
-    background-color: #f2f2f2; /* righe alternate più chiare */
-}
-
-tbody tr:hover {
-    background-color: #e0f7f7; /* effetto hover leggero */
-}
-
 
 header h1 {
     color: #bf0c0c;
@@ -61,6 +11,7 @@ header h1 {
     flex-grow: 1;
 }
 
+/*grassetto barra navigazione*/
 nav {
     font-weight: bold;
 }
@@ -73,6 +24,7 @@ nav a {
     /* font-family: Arial, sans-serif; non serve perché ereditato da body */
 }
 
+/*Quando il mouse passa sopra un link nella navbar, si aggiunge la sottolineatura per evidenziarlo.*/
 nav a:hover {
     text-decoration: underline;
 }
@@ -83,19 +35,19 @@ main {
     align-items: center;
     margin: 40px 20px;
 }
-/*box bordi rossi*/
-.info-box {
-    border: 2px solid #bf0c0c;
-    padding: 20px 30px;
-    max-width: 600px;
-    font-family: "Times New Roman", Times, serif;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 50px;
-    line-height: 1.5;
-    font-size: 1.1rem;
-    color: #8b0000;
+.text-bordeaux {
+    color: #8b0000 !important; /* bordeaux scuro */
 }
+
+.intro-box {
+    background-color: #f8d7da;  /* rosa chiaro */
+    border-radius: 10px;
+    padding: 20px;
+    font-family:  'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 18px;
+    color: #8b0000;  /* testo rosso scuro */
+}
+
 
 /*bottone*/
 .btn-custom {
@@ -136,15 +88,7 @@ thead th {
     padding: 10px;
 }
 
-tbody td {
-    padding: 8px;
-    text-align: center;
-    color: #8b0000;
-}
 
-tbody tr:nth-child(even) {
-    background-color: #f9d6d5;
-}
 
 
 
