@@ -21,7 +21,7 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #f8d7da;">
     <div class="container">
-        <a class="navbar-brand d-flex align-items-center" href="">
+        <a class="navbar-brand d-flex align-items-center" >
             <img src="{% static 'img/logo.png' %}" alt="Logo" class="logo-img me-2">
             <strong class="fs-3 text-bordeaux">CyberDefender</strong>
         </a>
@@ -30,9 +30,10 @@
         </button>
         <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
             <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link text-bordeaux" href="">Home</a></li>
+                <li class="nav-item"><a class="nav-link text-bordeaux" href="{% url 'index' %}">Home</a></li>
                 <li class="nav-item"><a class="nav-link text-bordeaux" href="">Enciclopedia</a></li>
                 <li class="nav-item"><a class="nav-link text-bordeaux" href="">Analisi </a></li>
+                <li class="nav-item"><a class="nav-link text-bordeaux" href="{% url 'rilevamento_attacco' %}">Rilevamento Attacco </a></li>
             </ul>
         </div>
     </div>
