@@ -18,6 +18,8 @@ from django.contrib import admin
 from django.urls import path, include
 
 from enciclopedia.views import enciclopedia_indice, enciclopedia_attacchi, index
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     #path('admin/', admin.site.urls),
@@ -25,4 +27,4 @@ urlpatterns = [
     path('', index, name="index"),
     path('enciclopedia_indice', enciclopedia_indice, name='enciclopedia_indice'),
     path('enciclopedia_attacchi/<int:attacco_id>/', enciclopedia_attacchi, name='enciclopedia_attacchi'),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

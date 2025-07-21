@@ -29,15 +29,7 @@ class Esecuzione(models.Model):
     utente = models.ForeignKey(Utente, on_delete=models.CASCADE)
     data_esecuzione = models.DateTimeField(auto_now_add=True)
     ora_esecuzione= models.TimeField()
-
-class Pdfreport(models.Model):
-    id = models.AutoField(primary_key=True)
-    nome_file = models.CharField(max_length=255)
-    contenuto = models.TextField()
-    data_generazione = models.DateTimeField(auto_now_add=True)
-    ora_generazione = models.TimeField()
-    dimensione = models.IntegerField()
-    rilevamento_attacco = models.ForeignKey(RilevamentoAttacco, on_delete=models.CASCADE)
+    pdf_report = models.FileField(upload_to='pdf_reports/', blank=True, null=True)
 
 class MessaggioSospetto(models.Model):
     id = models.AutoField(primary_key=True)
