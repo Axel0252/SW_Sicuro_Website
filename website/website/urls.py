@@ -17,7 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from enciclopedia.views import enciclopedia_indice, enciclopedia_attacchi, index
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path("enciclopedia/", include("enciclopedia.urls")),
+    #path('admin/', admin.site.urls),
+    #path("enciclopedia/", include("enciclopedia.urls")),
+    path('', index, name="index"),
+    path('enciclopedia_indice', enciclopedia_indice, name='enciclopedia_indice'),
+    path('enciclopedia_attacchi/<int:attacco_id>/', enciclopedia_attacchi, name='enciclopedia_attacchi'),
 ]

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Enciclopedia Attacchi | CyberDefender{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <h1 class="mb-4 text-center">Enciclopedia degli Attacchi Informatici</h1>
+
+  {% for categoria in categorie %}
+    <div class="mb-4">
+      <h3 class="text-danger border-bottom pb-2">{{ categoria.categoria }}</h3>
+      <ul class="list-unstyled">
+        {% for attacco in categoria.attacco_set.all %}
+          <li class="mb-2">
+            <a href="{% url 'enciclopedia_attacchi' attacco.id %}" class="text-decoration-none d-flex align-items-center text-dark">
+              <i class="bi bi-exclamation-circle-fill text-danger me-2"></i>
+              {{ attacco.nome_attacco }}
+            </a>
+          </li>
+        {% empty %}
+          <li class="fst-italic text-muted">Nessun attacco in questa categoria.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

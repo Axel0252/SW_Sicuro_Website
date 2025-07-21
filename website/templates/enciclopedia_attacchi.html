@@ -1,20 +1,24 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Enciclopedia | CyberDefender{% endblock %}
+{% block title %}Enciclopedia Attacchi | CyberDefender{% endblock %}
 
 {% block content %}
-    <div class="my-5">
-        <div class="intro-box text-center">
-            <h1>Benvenuto su CyberDefender</h1>
-        </div>
-    </div>
+    <h1>{{ attacco.nome_attacco }}</h1>
+
+    <p><strong>Livello di rischio:</strong> {{ attacco.livello_rischio }}</p>
+
+    <h3>Descrizione:</h3>
+    <p>{{ attacco.descrizione }}</p>
+
+    <h3>Contromisure:</h3>
+    <p>{{ attacco.contromisure }}</p>
+
+    <a href="{% url 'enciclopedia_indice' %}">← Torna all'elenco</a>
 
     <h4 class="text-center my-4">Per eseguire il form di rilevamento degli attacchi iscriverti ed entra nella tua area personale per tenere sempre traccia dei tuoi attacchi</h4>
     <div class="text-center mb-5">
         <a href="#" class="btn btn-custom mx-2">Area Privata</a>
     </div>
-
-
 
 {% endblock %}
