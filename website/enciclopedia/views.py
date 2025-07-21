@@ -112,15 +112,20 @@ def rilevamento_attacco(request):
 
 
 
+
 def risultati_attacco(request):
     esiti = request.session.get('esiti', None)
     if not esiti:
         return redirect('rilevamento_attacco')
 
-    # Prendi solo gli attacchi con esito positivo
     titoli_attacchi = [e['titolo'] for e in esiti if e['titolo'] != "Nessun attacco rilevato"]
 
     attacchi_dettagli = Attacco.objects.filter(nome_attacco__in=titoli_attacchi)
+
+
+    for attacco in attacchi_dettagli:
+        attacco.descrizione = attacco.descrizione.replace('\\n', '\n')
+        attacco.contromisure = attacco.contromisure.replace('\\n', '\n')
 
     context = {
         "esiti": esiti,
@@ -136,20 +141,27 @@ def genera_report_attacco_pdf(request):
     c = canvas.Canvas(buffer, pagesize=A4)
     width, height = A4
 
+    # Definizione margini
+    LEFT_MARGIN = 40
+    RIGHT_MARGIN = 40
+    TOP_MARGIN = 80
+    BOTTOM_MARGIN = 60
+
     logo_path = os.path.join(settings.BASE_DIR, 'website', 'static', 'img', 'logo2.png')
-    c.drawImage(logo_path, 40, height - 100, width=160, height=80, mask='auto')
+    c.drawImage(logo_path, LEFT_MARGIN, height - TOP_MARGIN, width=160, height=80, mask='auto')
+
     data_ora = datetime.now().strftime("%d/%m/%Y %H:%M")
     c.setFont("Helvetica", 10)
-    c.drawRightString(width - 40, height - 40, f"Data e Ora generazione: {data_ora}")
+    c.drawRightString(width - RIGHT_MARGIN, height - 40, f"Data e Ora generazione: {data_ora}")
 
     c.setFont("Helvetica-Bold", 16)
-    y = height - 120
-    c.drawString(40, y, "Report Risultati Rilevamento Attacco")
+    y = height - TOP_MARGIN - 40
+    c.drawString(LEFT_MARGIN, y, "Report Risultati Rilevamento Attacco")
     y -= 40
 
     c.setFont("Helvetica", 12)
     if not esiti:
-        c.drawString(40, y, "Nessun risultato disponibile.")
+        c.drawString(LEFT_MARGIN, y, "Nessun risultato disponibile.")
     else:
         for risultato in esiti:
             titolo = risultato.get("titolo", "")
@@ -158,47 +170,46 @@ def genera_report_attacco_pdf(request):
             domande = risultato.get("domande", [])
 
             c.setFont("Helvetica-Bold", 14)
-            c.drawString(40, y, f"Attacco: {titolo} ({categoria})")
+            c.drawString(LEFT_MARGIN, y, f"Attacco: {titolo} ({categoria})")
             y -= 20
 
             c.setFont("Helvetica", 12)
-            c.drawString(40, y, f"Esito: {esito}")
+            c.drawString(LEFT_MARGIN, y, f"Esito: {esito}")
             y -= 20
 
             try:
                 attacco_obj = Attacco.objects.get(nome_attacco=titolo)
 
-                # Correggi i \n testuali in veri newline
                 descrizione = attacco_obj.descrizione.replace('\\n', '\n')
                 contromisure = attacco_obj.contromisure.replace('\\n', '\n')
                 livello = attacco_obj.livello_rischio
 
                 c.setFont("Helvetica-Bold", 12)
-                c.drawString(40, y, "Descrizione:")
+                c.drawString(LEFT_MARGIN, y, "Descrizione:")
                 y -= 15
                 c.setFont("Helvetica", 11)
-                lines = simpleSplit(descrizione, "Helvetica", 11, width - 80)
+                lines = simpleSplit(descrizione, "Helvetica", 11, width - LEFT_MARGIN - RIGHT_MARGIN)
                 for line in lines:
-                    c.drawString(50, y, line)
+                    c.drawString(LEFT_MARGIN + 10, y, line)
                     y -= 14
-                    if y < 60:
+                    if y < BOTTOM_MARGIN:
                         c.showPage()
-                        y = height - 100
+                        y = height - TOP_MARGIN
 
                 c.setFont("Helvetica-Bold", 12)
-                c.drawString(40, y, "Contromisure:")
+                c.drawString(LEFT_MARGIN, y, "Contromisure:")
                 y -= 15
                 c.setFont("Helvetica", 11)
-                cont_lines = simpleSplit(contromisure, "Helvetica", 11, width - 80)
+                cont_lines = simpleSplit(contromisure, "Helvetica", 11, width - LEFT_MARGIN - RIGHT_MARGIN)
                 for line in cont_lines:
-                    c.drawString(50, y, line)
+                    c.drawString(LEFT_MARGIN + 10, y, line)
                     y -= 14
-                    if y < 60:
+                    if y < BOTTOM_MARGIN:
                         c.showPage()
-                        y = height - 80
+                        y = height - TOP_MARGIN
 
                 c.setFont("Helvetica-Bold", 12)
-                c.drawString(40, y, f"Livello rischio: {livello.capitalize()}")
+                c.drawString(LEFT_MARGIN, y, f"Livello rischio: {livello.capitalize()}")
                 y -= 30
 
             except Attacco.DoesNotExist:
@@ -206,20 +217,20 @@ def genera_report_attacco_pdf(request):
 
             if domande:
                 c.setFont("Helvetica-Bold", 12)
-                c.drawString(40, y, "Domande:")
+                c.drawString(LEFT_MARGIN, y, "Domande:")
                 y -= 15
                 c.setFont("Helvetica", 11)
                 for domanda in domande:
-                    c.drawString(60, y, f"- {domanda}")
+                    c.drawString(LEFT_MARGIN + 20, y, f"- {domanda}")
                     y -= 14
-                    if y < 60:
+                    if y < BOTTOM_MARGIN:
                         c.showPage()
-                        y = height - 80
+                        y = height - TOP_MARGIN
 
             y -= 30
-            if y < 60:
+            if y < BOTTOM_MARGIN:
                 c.showPage()
-                y = height - 80
+                y = height - TOP_MARGIN
 
     c.save()
     buffer.seek(0)
