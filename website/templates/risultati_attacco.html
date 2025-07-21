@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Risultati Rilevamento Attacco | CyberDefender{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2>Risultati dell'analisi</h2>
+
+    {% for risultato in esiti %}
+        <div class="card my-3">
+            <div class="card-header text-bordeaux">
+                <h4>{{ risultato.titolo }}</h4>
+                <small class="text-muted">{{ risultato.categoria }}</small>
+            </div>
+            <div class="card-body">
+                <p><strong>Esito:</strong> {{ risultato.esito }}</p>
+
+                {% if risultato.titolo != "Nessun attacco rilevato" %}
+                    {% for attacco in attacchi_dettagli %}
+                        {% if attacco.nome_attacco == risultato.titolo %}
+                            <p><strong>Descrizione:</strong> {{ attacco.descrizione }}</p>
+                            <p><strong>Livello di rischio:</strong> {{ attacco.livello_rischio }}</p>
+                            <p><strong>Contromisure:</strong> {{ attacco.contromisure }}</p>
+
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+
+    <div class="d-flex justify-content-center mt-4">
+        <a href="{% url 'rilevamento_attacco' %}" class="btn btn-custom">Fai un altro Test</a>
+    </div>
+
+    <div class="d-flex justify-content-center mt-4">
+        <a href="{% url 'genera_report_attacco_pdf' %}" target="_blank" class="btn btn-custom">Scarica PDF</a>
+
+    </div>
+</div>
+{% endblock %}

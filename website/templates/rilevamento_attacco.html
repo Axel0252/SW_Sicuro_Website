@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Rilevamento Attacco | CyberDefender{% endblock %}
+
+{% block content %}
+
+<br/>
+
+    <a href="{% url 'index' %}" class="text-decoration-none text-reset text-bordeaux text-start">⭠ Indietro</a>
+<br/>
+
+
+ <div class="col-md-4 mb-3">
+            <div class="contact-box p-3 border rounded">
+
+    {% if error_msg %}
+    <div class="alert alert-danger">{{ error_msg }}</div>
+    {% endif %}
+
+    {% if esiti %}
+    <div class="alert alert-info">
+        <ul>
+        {% for esito in esiti %}
+            <li>{{ esito }}</li>
+        {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <ol>
+        {% for domanda in domande %}
+            {% with current_risposta=risposte|slice:forloop.counter0|stringformat:"s"|first %}
+            <li class="mb-3">
+                <p>{{ domanda }}</p>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="domanda_{{ forloop.counter0 }}" id="si_{{ forloop.counter0 }}" value="sì" required
+                    {% if risposte and risposte|length > forloop.counter0 and current_risposta == "sì" %}checked{% endif %}>
+                    <label class="form-check-label" for="si_{{ forloop.counter0 }}">Sì</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="domanda_{{ forloop.counter0 }}" id="no_{{ forloop.counter0 }}" value="no"
+                    {% if risposte and risposte|length > forloop.counter0 and current_risposta == "no" %}checked{% endif %}>
+                    <label class="form-check-label" for="no_{{ forloop.counter0 }}">No</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="domanda_{{ forloop.counter0 }}" id="nonsoco_{{ forloop.counter0 }}" value="non so"
+                    {% if risposte and risposte|length > forloop.counter0 and current_risposta == "non so" %}checked{% endif %}>
+                    <label class="form-check-label" for="nonsoco_{{ forloop.counter0 }}">Non so</label>
+                </div>
+            </li>
+            {% endwith %}
+        {% endfor %}
+        </ol>
+
+        <div class="d-flex justify-content-center mt-4">
+    <button type="submit" class="btn btn-custom">Invia Risposte</button>
+
+</div>
+    </form>
+</div>
+ </div>
+{% endblock %}
