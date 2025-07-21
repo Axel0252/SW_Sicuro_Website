@@ -1,6 +1,5 @@
 from django.db import models
 
-# Create your models here.
 class Utente(models.Model):
     id = models.AutoField(primary_key=True)
     nome = models.CharField(max_length=100)
@@ -80,8 +79,3 @@ class EnciclopediaAttacchi(models.Model):
     contromisure = models.TextField()
     categoria = models.CharField(max_length=100 ) # Categoria dell'attacco, ad esempio "Phishing", "Malware", ecc.
     utente = models.ForeignKey(Utente, on_delete=models.CASCADE, null=True, blank=True)
-
-
-
-
-

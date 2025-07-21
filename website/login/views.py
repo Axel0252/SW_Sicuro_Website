@@ -15,6 +15,7 @@ def login(request):
         try:
             user_data = Utente.objects.filter(email=email, password=password).get()
         except ObjectDoesNotExist:
-            render(request, 'loginIndex.html', {'error_message' : "Email e/o password non validi"})
+            return render(request, 'loginIndex.html', {'error_message' : "Email e/o password non validi"})
         
+        return render(request, 'homepage.html', {'data':user_data})
         
