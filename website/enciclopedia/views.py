@@ -13,6 +13,8 @@ import os
 from django.http import FileResponse
 from datetime import datetime
 from django.conf import settings
+import re
+from django.utils.html import escape, mark_safe
 
 
 
@@ -29,9 +31,29 @@ def enciclopedia_indice(request):
 def enciclopedia_attacchi(request, attacco_id):
     attacco = get_object_or_404(Attacco, id=attacco_id)
 
-    # Correggi i \n testuali in veri newline
-    attacco.descrizione = attacco.descrizione.replace('\\n', '\n')
-    attacco.contromisure = attacco.contromisure.replace('\\n', '\n')
+    def formatta_testo(testo):
+        # Pulisce newline e backslash
+        testo = testo.replace('\\n', '\n').replace('\\', '')
+
+        # Escape del testo per evitare XSS
+        from django.utils.html import escape, mark_safe
+        testo = escape(testo)
+
+        # Evidenzia titoli (senza lookbehind)
+        titoli = [
+            "Modalità di esecuzione:",
+            "Possibili conseguenze:",
+            "Consigli pratici per la prevenzione:"
+        ]
+
+        for titolo in titoli:
+            # Sostituisce il titolo con la versione in <strong>
+            testo = testo.replace(titolo, f"<strong>{titolo}</strong>")
+
+        return mark_safe(testo)
+
+    attacco.descrizione = formatta_testo(attacco.descrizione)
+    attacco.contromisure = formatta_testo(attacco.contromisure)
 
     if request.user.is_authenticated:
         ConsultazioneAttacco.objects.create(
@@ -41,6 +63,7 @@ def enciclopedia_attacchi(request, attacco_id):
         )
 
     return render(request, 'enciclopedia_attacchi.html', {'attacco': attacco})
+
 
 @require_http_methods(["GET", "POST"])
 def rilevamento_attacco(request):
