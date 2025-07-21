@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Homepage | CyberDefender{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <p class="fs-2 text-white">
+        Benvenuto, {{ data.nome }} {{ data.cognome }}
+    </p>
+    <br>
+
+    <div class="col-md-6">
+        {% for report in reports %}
+            {{% if report.utente.id == data.id %}}
+                {{ report.pdfreport.nome_file }}
+                {{ report.pdfreport.data_generazione }}
+            {{% endif %}}
+
+        {% endfor %}
+    </div>
+
+</div>
+
+
+
+{% endblock %}

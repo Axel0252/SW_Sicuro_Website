@@ -13,9 +13,9 @@ def login(request):
         hashed_password = hashlib.md5(password.encode()).hexdigest()
 
         try:
-            user_data = Utente.objects.filter(email=email, password=password).get()
+            user_data = Utente.objects.filter(email=email, password=hashed_password).get()
+            reports = Esecuzione.objects.select_related('utente', 'rilevamento_attacco')
         except ObjectDoesNotExist:
             return render(request, 'loginIndex.html', {'error_message' : "Email e/o password non validi"})
         
-        return render(request, 'homepage.html', {'data':user_data})
-        
+        return render(request, 'homepage.html', {'data':user_data, 'reports':reports})
