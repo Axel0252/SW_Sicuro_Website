@@ -11,7 +11,7 @@
             <div class="card-body">
                 <h2 class="card-title text-center mb-4">Login</h2>
 
-                <form method="post" action="/login">
+                <form method="post" action="/login/checkLogin">
                     {% csrf_token %}
                     <div class="mb-3">
                         <label for="email" class="form-label">Email:</label>
@@ -37,7 +37,7 @@
                 <div class="text-center">
                     <p class="mb-2">Non ancora registrato?</p>
                     <form action="/registration">
-                        <button type="submit" class="btn btn-outline-light">Registrati</button>
+                        <button type="submit" class="btn btn-outline-danger">Registrati</button>
                     </form>
                 </div>
 

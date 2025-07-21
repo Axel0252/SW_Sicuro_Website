@@ -21,22 +21,14 @@ class RilevamentoAttacco(models.Model):
     domande = models.TextField()
     numero_domande = models.IntegerField()
     categoria = models.CharField(max_length=100)
+    # add blob
 
 class Esecuzione(models.Model):
     id = models.AutoField(primary_key=True)
-    rilevamento_attacco = models.ForeignKey(RilevamentoAttacco, on_delete=models.CASCADE)
+    RilevamentoAttacco = models.ForeignKey(RilevamentoAttacco, on_delete=models.CASCADE)
     utente = models.ForeignKey(Utente, on_delete=models.CASCADE)
     data_esecuzione = models.DateTimeField(auto_now_add=True)
     ora_esecuzione= models.TimeField()
-
-class Pdfreport(models.Model):
-    id = models.AutoField(primary_key=True)
-    nome_file = models.CharField(max_length=255)
-    contenuto = models.TextField()
-    data_generazione = models.DateTimeField(auto_now_add=True)
-    ora_generazione = models.TimeField()
-    dimensione = models.IntegerField()
-    rilevamento_attacco = models.ForeignKey(RilevamentoAttacco, on_delete=models.CASCADE)
 
 class MessaggioSospetto(models.Model):
     id = models.AutoField(primary_key=True)

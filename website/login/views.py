@@ -6,7 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist # Gestisce sia DoesNotExis
 def index(request):
     return render(request, 'loginIndex.html')
 
-def login(request):
+def checkLogin(request):
     if request.method == "POST":
         email = request.POST.get("email")
         password = request.POST.get('password')
@@ -14,7 +14,7 @@ def login(request):
 
         try:
             user_data = Utente.objects.filter(email=email, password=hashed_password).get()
-            reports = Esecuzione.objects.select_related('utente', 'rilevamento_attacco')
+            reports = Esecuzione.objects.filter(utente=user_data.id).get()
         except ObjectDoesNotExist:
             return render(request, 'loginIndex.html', {'error_message' : "Email e/o password non validi"})
         
