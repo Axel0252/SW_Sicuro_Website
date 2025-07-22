@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Registrati | CyberDefender{% endblock %}
+
+{% block content %}
+
+{{ error_message }}
+
+<form method="post" action="/registrazione_privato">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="email" class="form-label">Email </label><br>
+        <input type="email" class="form-control" id="email" name="email"><br>
+    </div>
+
+    <div class="mb-3">
+        <label for="passw" class="text-white form-label">Password </label><br>
+        <input type="password" class="form-control" id="passw" name="passw"><br>
+    </div>
+    
+    <div class="mb-3">
+        <label for="nome" class="text-white form-label">Nome </label><br>
+        <input type="text" class="form-control" id="nome" name="nome"><br>
+    </div>
+
+    <div class="mb-3">
+        <label for="cognome" class="text-white form-label">Cognome </label><br>
+        <input type="text" class="form-control" id="cognome" name="cognome"><br>
+    </div>  
+
+    <div class="mb-3">
+        <label for="dataNascita" class="text-white form-label">Data di nascita </label><br>
+        <input type="date" class="form-control" id="dataNascita" name="dataNascita"><br>
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Invia</button>
+    
+</form>
+
+{% endblock %}
