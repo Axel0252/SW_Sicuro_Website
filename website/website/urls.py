@@ -21,7 +21,7 @@ from enciclopedia.views import enciclopedia_indice, enciclopedia_attacchi, index
     risultati_attacco, genera_report_attacco_pdf
 from django.conf import settings
 from django.conf.urls.static import static
-from login.views import *
+
 
 urlpatterns = [
     #path('admin/', admin.site.urls),
