@@ -14,10 +14,12 @@ def checkLogin(request):
 
         try:
             user_data = Utente.objects.filter(email=email, password=hashed_password).get()
+            reports = list(Esecuzione.objects.select_related('utente', 'rilevamento_attacco'))
+            print(reports)
         except ObjectDoesNotExist:
             return render(request, 'loginIndex.html', {'error_message' : "Email e/o password non validi"})
         
-        return render(request, 'homepage.html', {'data':user_data})
+        return render(request, 'homepage.html', {'data':user_data, 'reports':reports})
     
 def registration(request):
     return render(request, 'sceltaUtente.html')
@@ -37,7 +39,7 @@ def registrazione_privato(request):
         utente = Utente.objects.create(
             email=email,
             password=hashed_password,
-            dataNascita=dataNascita,
+            data_nascita=dataNascita,
             nome=nome,
             cognome=cognome,
             tipo_utente="privato"
@@ -84,3 +86,8 @@ def registrazione_azienda(request):
     else:
         return render(request, 'registration.html', {'error_message':"Problemi nella registrazione"})
 
+def scelta_privato(request):
+    return render(request, 'registra_privato.html')
+
+def scelta_azienda(request):
+    return render(request, 'registrazione_azienda.html')
