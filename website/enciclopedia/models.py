@@ -21,7 +21,7 @@ class RilevamentoAttacco(models.Model):
     domande = models.TextField()
     numero_domande = models.IntegerField()
     categoria = models.CharField(max_length=100)
-
+    pdf_report = models.FileField(upload_to="pdf_reports/", blank=True, null=True)
 
 class Esecuzione(models.Model):
     id = models.AutoField(primary_key=True)

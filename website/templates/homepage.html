@@ -6,10 +6,25 @@
 {% block content %}
 
 <div class="row justify-content-center">
-    <p class="fs-2 text-dark">
+    <p class="fs-2">
         Benvenuto, {{ data.nome }} {{ data.cognome }}
     </p>
     <br>
+
+    <div class="col-sm-6">
+        <p class="fs-2">
+            Storico Analisi
+        </p>
+        <br>
+        <div class="col-md-6">
+            {% for report in reports %}
+                {% if report.utente.id == data.id %}
+                    {{ report.rilevamento_attacco.pdf_report }}
+                    {{ report.data_esecuzione }}
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
 
 </div>
 
