@@ -21,7 +21,6 @@ from enciclopedia.views import enciclopedia_indice, enciclopedia_attacchi, index
     risultati_attacco, genera_report_attacco_pdf
 from django.conf import settings
 from django.conf.urls.static import static
-from login.views import registration, registrazione_azienda, registrazione_privato
 
 
 urlpatterns = [
@@ -36,5 +35,6 @@ urlpatterns = [
     path('login/', include("login.urls")),
     path('registration', registration, name="registration"),
     path('analizzatoreMessaggi/', include("analizzatoreMessaggi.urls")),
+    path('analisi_numeri/', include("analisi_numeri.urls")),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
