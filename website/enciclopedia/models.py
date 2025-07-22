@@ -48,8 +48,8 @@ class NumeroTelefonico(models.Model):
 
 class RichiestaAnalisi(models.Model):
     id = models.AutoField(primary_key=True)
-    messaggio_sospetto = models.ForeignKey(MessaggioSospetto, on_delete=models.CASCADE)
-    numero_telefonico = models.ForeignKey(NumeroTelefonico, on_delete=models.CASCADE)
+    messaggio_sospetto = models.ForeignKey(MessaggioSospetto, on_delete=models.CASCADE, null=True, blank=True)
+    numero_telefonico = models.ForeignKey(NumeroTelefonico, on_delete=models.CASCADE, null=True, blank=True)
     data_richiesta = models.DateTimeField(auto_now_add=True)
     ora_richiesta = models.TimeField()
     esito = models.TextField()

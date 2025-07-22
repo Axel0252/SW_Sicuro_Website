@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Analisi Numero{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4 text-center text-bordeaux">Analizza un numero telefonico</h2>
+
+    {% if message %}
+        <div class="alert alert-danger">{{ message }}</div>
+    {% endif %}
+
+    <form method="POST" class="border p-4 rounded shadow-sm bg-light">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label for="prefisso" class="form-label">Seleziona il prefisso</label>
+            <select class="form-select" id="prefisso" name="prefisso" required>
+                <option value="">-- Seleziona un paese --</option>
+                <option value="+39">🇮🇹 Italia (+39)</option>
+                <option value="+44">🇬🇧 Regno Unito (+44)</option>
+                <option value="+33">🇫🇷 Francia (+33)</option>
+                <option value="+49">🇩🇪 Germania (+49)</option>
+                <option value="+1">🇺🇸 USA (+1)</option>
+                <option value="+34">🇪🇸 Spagna (+34)</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="numero" class="form-label">Numero (senza prefisso)</label>
+            <input type="text" class="form-control" id="numero" name="numero" required placeholder="es. 3201234567">
+        </div>
+
+        <button type="submit" class="btn btn-danger w-100">Analizza</button>
+    </form>
+
+    {% if result %}
+        <div class="mt-5 p-4 border rounded bg-white shadow">
+            <h4>Risultato Analisi</h4>
+            <ul class="list-group">
+                <li class="list-group-item"><strong>Numero:</strong> {{ result.numero }}</li>
+                <li class="list-group-item"><strong>Valido:</strong> {{ result.valido }}</li>
+                <li class="list-group-item"><strong>Sospetto:</strong> {{ result.sospetto }}</li>
+                <li class="list-group-item"><strong>Esito:</strong> {{ result.esito }}</li>
+                <li class="list-group-item"><strong>Operatore:</strong> {{ result.operatore }}</li>
+                <li class="list-group-item"><strong>Tipo:</strong> {{ result.tipo }}</li>
+            </ul>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
