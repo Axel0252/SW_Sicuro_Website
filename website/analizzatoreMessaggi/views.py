@@ -15,7 +15,7 @@ def checkMessage(request):
     if request.method == 'POST':
         text = request.POST.get("text")
 
-    for keyword in keyword:
+    for keyword in SUSPICIOUS_KEYWORDS:
         if keyword in text:
             found_keywords.append(keyword)
             score=score+1

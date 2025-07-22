@@ -22,6 +22,7 @@ from enciclopedia.views import enciclopedia_indice, enciclopedia_attacchi, index
 from django.conf import settings
 from django.conf.urls.static import static
 
+from login.views import registration
 
 urlpatterns = [
     #path('admin/', admin.site.urls),
@@ -33,7 +34,7 @@ urlpatterns = [
     path('risultati/', risultati_attacco, name='risultati_attacco'),
     path('report-pdf/', genera_report_attacco_pdf, name='genera_report_attacco_pdf'),
     path('login/', include("login.urls")),
-    path('registration', registration, name="registration"),
+    path('registration/', registration, name="registration"),
     path('analizzatoreMessaggi/', include("analizzatoreMessaggi.urls")),
     path('analisi_numeri/', include("analisi_numeri.urls")),
 
