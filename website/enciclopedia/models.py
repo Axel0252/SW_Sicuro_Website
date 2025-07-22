@@ -22,6 +22,15 @@ class RilevamentoAttacco(models.Model):
     numero_domande = models.IntegerField()
     categoria = models.CharField(max_length=100)
 
+
+class Esecuzione(models.Model):
+    id = models.AutoField(primary_key=True)
+    rilevamento_attacco = models.ForeignKey(RilevamentoAttacco, on_delete=models.CASCADE)
+    utente = models.ForeignKey(Utente, on_delete=models.CASCADE)
+    data_esecuzione = models.DateTimeField(auto_now_add=True)
+    ora_esecuzione= models.TimeField()
+    pdf_report = models.FileField(upload_to='pdf_reports/', blank=True, null=True)
+
 class MessaggioSospetto(models.Model):
     id = models.AutoField(primary_key=True)
     testo = models.TextField()

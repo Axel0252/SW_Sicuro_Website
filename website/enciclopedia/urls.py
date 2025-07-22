@@ -5,5 +5,4 @@ from login.views import *
 
 urlpatterns = [
     path('', index, name="index"),
-    path('checkLogin', checkLogin, name="checkLogin"),
 ]
