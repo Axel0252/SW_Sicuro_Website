@@ -33,6 +33,8 @@ urlpatterns = [
     path('risultati/', risultati_attacco, name='risultati_attacco'),
     path('report-pdf/', genera_report_attacco_pdf, name='genera_report_attacco_pdf'),
     path('login/', include("login.urls")),
+    path('registration', registration, name="registration"),
+    path('analizzatoreMessaggi/', include("analizzatoreMessaggi.urls")),
     path('analisi_numeri/', include("analisi_numeri.urls")),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

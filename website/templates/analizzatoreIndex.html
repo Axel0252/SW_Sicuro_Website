@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Analizzatore Messaggi{% endblock %}
+
+{% block content %}
+
+{% if found_keywords %}
+
+Keyword sospette trovate: <br>
+
+{% for keyword in found_keywords %}
+    <p>{{ keyword }}</p><br>
+{% endfor %}
+
+Lo score è: {{ score }} <br>
+
+{% else %}
+
+<form method="post" action="checkMessage">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="text" class="form-label">Messaggio </label><br>
+        <textarea class="form-control" id="text" name="text"></textarea>
+        <br>
+    </div>
+
+    <button type="submit" class="btn btn-danger">Invia</button>
+    
+</form>
+
+{% endif %}
+
+{% endblock %}
