@@ -12,31 +12,23 @@
 <form method="post" action="registrazione_privato">
     {% csrf_token %}
     <div class="mb-3">
-        <label for="email" class="form-label">Email </label><br>
-        <input type="email" class="form-control" id="email" name="email"><br>
-    </div>
-
-    <div class="mb-3">
-        <label for="passw" class="form-label">Password </label><br>
-        <input type="password" class="form-control" id="passw" name="passw"><br>
+        {{ form.as_p }}
     </div>
     
-    <div class="mb-3">
-        <label for="nome" class="form-label">Nome </label><br>
-        <input type="text" class="form-control" id="nome" name="nome"><br>
-    </div>
+    <button type="submit" class="btn btn-danger">Registrati</button>
 
-    <div class="mb-3">
-        <label for="cognome" class="form-label">Cognome </label><br>
-        <input type="text" class="form-control" id="cognome" name="cognome"><br>
-    </div>  
-
-    <div class="mb-3">
-        <label for="dataNascita" class="form-label">Data di nascita </label><br>
-        <input type="date" class="form-control" id="dataNascita" name="dataNascita"><br>
-    </div>
-    
-    <button type="submit" class="btn btn-danger">Invia</button>
+    {% if form.errors %}
+      <ul class="text-danger">
+        {% for field in form %}
+          {% for error in field.errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        {% endfor %}
+        {% for error in form.non_field_errors %}
+          <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
     
 </form>
 

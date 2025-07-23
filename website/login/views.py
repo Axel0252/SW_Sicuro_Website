@@ -3,6 +3,7 @@ from enciclopedia.models import *
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.contrib.auth.hashers import make_password, check_password
 from django.db import transaction
+from .forms import privateRegistrazionForm
 
 def index(request):
     return render(request, 'loginIndex.html')
@@ -32,35 +33,35 @@ def registration(request):
 
 def registrazione_privato(request):
     if request.method == 'POST':
+        form = privateRegistrazionForm(request.POST)
         email = request.POST.get('email')
         utente = Utente.objects.filter(email=email)
         if len(utente) != 0:
             return render(request, 'registra_privato.html', {'error_message':"Questa mail è già associata ad un altro utente."})
-        password = request.POST.get('passw')
-        hashed_password = make_password(password)
-        nome = request.POST.get('nome')
-        cognome = request.POST.get('cognome')
-        dataNascita = request.POST.get('dataNascita')
 
-        utente = Utente.objects.create(
-            email=email,
-            password=hashed_password,
-            data_nascita=dataNascita,
-            nome=nome,
-            cognome=cognome,
-            tipo_utente='privato',
-            ruolo='privato',
-        )   
-        try:
-            utente.full_clean()
-        except ValidationError:
-            utente.delete()
-            return render(request, 'loginIndex.html', {'error_message' : "Dati inseriti non validi"})
-        
-        return render(request, 'loginIndex.html', {'success_message':"Registrazione avvenuta con successo"})
-    
+        if form.is_valid():
+            hashed_password = make_password(form.password)
+
+            utente = Utente.objects.create(
+                email=form.cleaned_data['email'],
+                password=hashed_password,
+                data_nascita=form.cleaned_data['data_nascita'],
+                nome=form.cleaned_data['nome'],
+                cognome=form.cleaned_data['cognome'],
+                tipo_utente='privato',
+                ruolo='privato',
+            )   
+            try:
+                utente.full_clean()
+            except ValidationError:
+                utente.delete()
+                return render(request, 'loginIndex.html', {'error_message' : "Dati inseriti non validi"})
+            
+            return render(request, 'loginIndex.html', {'success_message':"Registrazione avvenuta con successo"})
+
     else:
-        return render(request, 'registra_privato.html', {'error_message':"Problemi nella registrazione"}) # request error
+        form = privateRegistrazionForm()
+    return render(request, 'registra_privato.html', {'form':form})
 
 
 def registrazione_azienda(request):
