@@ -1,20 +1,29 @@
-from django.http import HttpResponse
-from django.http.response import FileResponse
-from django.utils import timezone
-from django.shortcuts import render, redirect, get_object_or_404, reverse
-from django.views.decorators.http import require_http_methods
-
-from enciclopedia.models import EnciclopediaAttacchi, ConsultazioneAttacco, Attacco, RilevamentoAttacco, Utente
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import A4
-from reportlab.lib.utils import simpleSplit
-import io
 import os
-from django.http import FileResponse
-from datetime import datetime
-from django.conf import settings
-import re
+
+from django.http import HttpResponse, FileResponse
+from django.shortcuts import render, redirect, get_object_or_404, reverse
+from django.utils import timezone
+from django.utils.timezone import now
 from django.utils.html import escape, mark_safe
+from django.conf import settings
+from reportlab.platypus import Image, Paragraph, Spacer, SimpleDocTemplate
+
+from enciclopedia.models import (
+    EnciclopediaAttacchi,
+    ConsultazioneAttacco,
+    Attacco,
+    RilevamentoAttacco,
+    Utente,
+    Esecuzione
+)
+
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.pagesizes import letter
+from django.core.files.base import ContentFile
+
+from io import BytesIO
+
 
 
 # Create your views here.
@@ -74,196 +83,216 @@ def enciclopedia_attacchi(request, attacco_id):
     return render(request, 'enciclopedia_attacchi.html', {'attacco': attacco})
 
 
-@require_http_methods(["GET", "POST"])
+
+
+
 def rilevamento_attacco(request):
+    def clean_testo(testo):
+        return testo.replace('\\n', '\n').replace('\\', '').strip()
+
+    utente_id = request.session.get('utente_id')
+    if not utente_id:
+        return redirect('login')
+
+    try:
+        utente = Utente.objects.get(id=utente_id)
+    except Utente.DoesNotExist:
+        return redirect('login')
+
     attacchi = RilevamentoAttacco.objects.all()
     tutte_domande = []
+    index = 0
+
+    # Prepara tutte le domande per il form
     for attacco in attacchi:
-        domande = attacco.domande.strip().split('\n')
+        domande_raw = attacco.domande.replace('\\n', '\n').replace('\\', '').strip()
+        domande = domande_raw.split('\n')
         for domanda in domande:
-            tutte_domande.append((attacco.id, domanda.strip()))
+            tutte_domande.append((index, attacco.id, domanda.strip()))
+            index += 1
 
     if request.method == "POST":
         risposte = []
-        error = False
-        error_msg = None
-
-        for i in range(len(tutte_domande)):
-            risposta = request.POST.get(f"domanda_{i}")
+        for idx, attacco_id, domanda in tutte_domande:
+            risposta = request.POST.get(f"domanda_{idx}")
             if risposta not in ["sì", "no", "non so"]:
-                error = True
-                error_msg = "Per favore, rispondi a tutte le domande."
-                break
-            risposte.append(risposta)
+                return render(request, "rilevamento_attacco.html", {
+                    "domande": tutte_domande,
+                    "error_msg": "Per favore, rispondi a tutte le domande."
+                })
+            risposte.append((attacco_id, risposta))
 
-        if error:
-            context = {
-                "domande": [d[1] for d in tutte_domande],
-                "error_msg": error_msg,
-                "risposte": risposte,
-            }
-            return render(request, "rilevamento_attacco.html", context)
-
-        # Analizziamo le risposte per attacco
         risultati = {}
-        for i, (attacco_id, domanda) in enumerate(tutte_domande):
-            if attacco_id not in risultati:
-                risultati[attacco_id] = []
-            risultati[attacco_id].append(risposte[i])
+        for attacco_id, risposta in risposte:
+            risultati.setdefault(attacco_id, []).append(risposta)
 
         esiti = []
+        lista_dati_pdf = []
+        data_corrente = now()
+
         for attacco in attacchi:
             risposte_attacco = risultati.get(attacco.id, [])
             num_si = risposte_attacco.count("sì")
+
             if num_si >= 2:
+                try:
+                    attacco_info = Attacco.objects.filter(nome_attacco__iexact=attacco.titolo).first()
+                    print(f"Ricerca attacco: {attacco.titolo}")
+                except Attacco.DoesNotExist:
+                    attacco_info = None
+
+                dati_pdf = {
+                    "titolo": attacco.titolo,
+                    "categoria": attacco.categoria,
+                    "esito": f"Possibile attacco di tipo '{attacco.titolo}' rilevato.",
+                    "numero_si": num_si,
+                    "totale_domande": len(risposte_attacco),
+                    "descrizione": clean_testo(attacco_info.descrizione) if attacco_info and attacco_info.descrizione else "Descrizione non disponibile",
+                    "contromisure": clean_testo(attacco_info.contromisure) if attacco_info and attacco_info.contromisure else "Nessuna contromisura specificata",
+                    "livello_rischio": attacco_info.livello_rischio if attacco_info and attacco_info.livello_rischio else "N/A",
+                     "data": data_corrente.strftime("%d/%m/%Y"),
+                    "ora": data_corrente.strftime("%H:%M:%S"),
+                }
+
+
+                lista_dati_pdf.append(dati_pdf)
+
                 esiti.append({
                     "titolo": attacco.titolo,
-                    "esito": f"Possibile attacco di tipo '{attacco.titolo}' rilevato!",
                     "categoria": attacco.categoria,
-                    "domande": attacco.domande.strip().split('\n')
+                    "esito": dati_pdf["esito"],
+                    "numero_si": num_si,
+                    "totale_domande": len(risposte_attacco),
+                    "descrizione": dati_pdf["descrizione"],
+                    "livello_rischio": dati_pdf["livello_rischio"],
+                    "contromisure": dati_pdf["contromisure"]
                 })
-        # se non troviamo nessun attacco sospetto
-        if not esiti:
+
+        if not lista_dati_pdf:
             esiti.append({
                 "titolo": "Nessun attacco rilevato",
-                "esito": "Non sono stati rilevati attacchi in base alle risposte fornite.",
                 "categoria": "",
-                "domande": []
+                "esito": "Non sono stati rilevati attacchi in base alle risposte fornite.",
+                "numero_si": 0,
+                "totale_domande": 0,
+                "descrizione": "",
+                "livello_rischio": "",
+                "contromisure": ""
+
             })
-        # Salva i risultati in sessione per recuperarli nella pagina risultati
-        request.session['esiti'] = esiti
+        else:
+            # Genera PDF unico e salvalo
+            pdf_file = generate_pdf_report(lista_dati_pdf, utente)
+            pdf_content = pdf_file
+            pdf_nome = f"report_{utente.id}_{data_corrente.strftime('%Y%m%d_%H%M%S')}.pdf"
 
-        # Redirect alla pagina dei risultati
-        return redirect(reverse('risultati_attacco'))
+            # Crea una Esecuzione per ogni attacco rilevato
+            for dati in lista_dati_pdf:
+                try:
+                    attacco_obj = RilevamentoAttacco.objects.get(titolo=dati["titolo"])
+                except RilevamentoAttacco.DoesNotExist:
+                    continue
 
-    else:
-        context = {
-            "domande": [d[1] for d in tutte_domande],
-        }
-        return render(request, "rilevamento_attacco.html", context)
+                esecuzione = Esecuzione.objects.create(
+                   rilevamento_attacco=attacco_obj,
+                    utente=utente,
+                    data_esecuzione=data_corrente,
+                    ora_esecuzione=data_corrente.time()
+                )
+                esecuzione.pdf_report.save(pdf_nome, pdf_content)
+                esecuzione.save()
 
+                for e in esiti:
+                    if e["titolo"] == dati["titolo"]:
+                        e["pdf_url"] = esecuzione.pdf_report.url
 
+        request.session["esiti"] = esiti
+        return redirect(reverse("risultati_attacco"))
+
+    return render(request, "rilevamento_attacco.html", {
+        "domande": tutte_domande
+    })
 
 
 def risultati_attacco(request):
-    esiti = request.session.get('esiti', None)
+    utente_id = request.session.get('utente_id')
+    if not utente_id:
+        return redirect('login')
+
+    esiti = request.session.get("esiti", [])
+
     if not esiti:
-        return redirect('rilevamento_attacco')
+        esiti = [{
+            "titolo": "Nessun attacco rilevato",
+            "categoria": "",
+            "esito": "Non sono stati rilevati attacchi in base alle risposte fornite.",
+            "numero_si": 0,
+            "totale_domande": 0,
+            "pdf_url": None,
+            "descrizione": "",
+            "livello_rischio": "",
+            "contromisure": ""
+        }]
 
-    titoli_attacchi = [e['titolo'] for e in esiti if e['titolo'] != "Nessun attacco rilevato"]
-
-    attacchi_dettagli = Attacco.objects.filter(nome_attacco__in=titoli_attacchi)
-
-
-    for attacco in attacchi_dettagli:
-        attacco.descrizione = attacco.descrizione.replace('\\n', '\n')
-        attacco.contromisure = attacco.contromisure.replace('\\n', '\n')
-
-    context = {
+    return render(request, "risultati_attacco.html", {
         "esiti": esiti,
-        "attacchi_dettagli": attacchi_dettagli
-    }
-    return render(request, "risultati_attacco.html", context)
+    })
 
+def generate_pdf_report(lista_esiti, utente):
 
-def genera_report_attacco_pdf(request):
-    esiti = request.session.get('esiti', [])
+    def pulisci_testo_per_pdf(testo):
+        if not testo:
+            return "N/A"
+        testo = testo.replace('\\ -', '\n-')
+        testo = testo.replace('\\', '')
+        testo = testo.strip()
+        return testo
 
-    buffer = io.BytesIO()
-    c = canvas.Canvas(buffer, pagesize=A4)
-    width, height = A4
-
-    # Definizione margini
-    LEFT_MARGIN = 40
-    RIGHT_MARGIN = 40
-    TOP_MARGIN = 80
-    BOTTOM_MARGIN = 60
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter,
+                            rightMargin=72, leftMargin=72,
+                            topMargin=72, bottomMargin=18)
+    styles = getSampleStyleSheet()
+    styles.add(ParagraphStyle(name='MyTitle', fontSize=18, leading=22, spaceAfter=12, alignment=1))
+    styles.add(ParagraphStyle(name='Heading', fontSize=14, leading=18, spaceAfter=10))
+    styles.add(ParagraphStyle(name='Text', fontSize=12, leading=15))
 
     logo_path = os.path.join(settings.BASE_DIR, 'website', 'static', 'img', 'logo2.png')
-    c.drawImage(logo_path, LEFT_MARGIN, height - TOP_MARGIN, width=160, height=80, mask='auto')
+    logo = Image(logo_path, width=100, height=50)
+    elements = []
 
-    data_ora = datetime.now().strftime("%d/%m/%Y %H:%M")
-    c.setFont("Helvetica", 10)
-    c.drawRightString(width - RIGHT_MARGIN, height - 40, f"Data e Ora generazione: {data_ora}")
+    elements.append(logo)
+    elements.append(Spacer(1, 12))
 
-    c.setFont("Helvetica-Bold", 16)
-    y = height - TOP_MARGIN - 40
-    c.drawString(LEFT_MARGIN, y, "Report Risultati Rilevamento Attacco")
-    y -= 40
+    elements.append(Paragraph("Report Rilevamento Attacchi", styles['MyTitle']))
+    elements.append(Paragraph(f"Utente: {utente.nome}", styles['Text']))
+    elements.append(Spacer(1, 12))
 
-    c.setFont("Helvetica", 12)
-    if not esiti:
-        c.drawString(LEFT_MARGIN, y, "Nessun risultato disponibile.")
-    else:
-        for risultato in esiti:
-            titolo = risultato.get("titolo", "")
-            esito = risultato.get("esito", "")
-            categoria = risultato.get("categoria", "")
-            domande = risultato.get("domande", [])
+    for dati in lista_esiti:
+        elements.append(Paragraph(f"TITOLO: {dati['titolo']}", styles['Heading']))
+        elements.append(Paragraph(f"CATEGORIA: {dati['categoria']}", styles['Text']))
+        elements.append(Spacer(1, 12))
 
-            c.setFont("Helvetica-Bold", 14)
-            c.drawString(LEFT_MARGIN, y, f"Attacco: {titolo} ({categoria})")
-            y -= 20
+        elements.append(Paragraph(f"ESITO:", styles['Heading']))
+        elements.append(Paragraph(pulisci_testo_per_pdf(dati['esito']), styles['Text']))
+        elements.append(Spacer(1, 12))
 
-            c.setFont("Helvetica", 12)
-            c.drawString(LEFT_MARGIN, y, f"Esito: {esito}")
-            y -= 20
+        elements.append(Paragraph(f"DESCRIZIONE:", styles['Heading']))
+        elements.append(Paragraph(pulisci_testo_per_pdf(dati.get('descrizione', 'N/A')), styles['Text']))
+        elements.append(Spacer(1, 12))
 
-            try:
-                attacco_obj = Attacco.objects.get(nome_attacco=titolo)
+        elements.append(Paragraph(f"LIVELLO DI RISCHIO:", styles['Heading']))
+        elements.append(Paragraph(pulisci_testo_per_pdf(dati.get('livello_rischio', 'N/A')), styles['Text']))
+        elements.append(Spacer(1, 12))
 
-                descrizione = attacco_obj.descrizione.replace('\\n', '\n')
-                contromisure = attacco_obj.contromisure.replace('\\n', '\n')
-                livello = attacco_obj.livello_rischio
+        elements.append(Paragraph(f"CONTROMISURE:", styles['Heading']))
+        elements.append(Paragraph(pulisci_testo_per_pdf(dati.get('contromisure', 'N/A')), styles['Text']))
+        elements.append(Spacer(1, 12))
 
-                c.setFont("Helvetica-Bold", 12)
-                c.drawString(LEFT_MARGIN, y, "Descrizione:")
-                y -= 15
-                c.setFont("Helvetica", 11)
-                lines = simpleSplit(descrizione, "Helvetica", 11, width - LEFT_MARGIN - RIGHT_MARGIN)
-                for line in lines:
-                    c.drawString(LEFT_MARGIN + 10, y, line)
-                    y -= 14
-                    if y < BOTTOM_MARGIN:
-                        c.showPage()
-                        y = height - TOP_MARGIN
+        elements.append(Paragraph(f"Risposte Sì: {dati['numero_si']} / {dati['totale_domande']}", styles['Text']))
+        elements.append(Spacer(1, 24))
 
-                c.setFont("Helvetica-Bold", 12)
-                c.drawString(LEFT_MARGIN, y, "Contromisure:")
-                y -= 15
-                c.setFont("Helvetica", 11)
-                cont_lines = simpleSplit(contromisure, "Helvetica", 11, width - LEFT_MARGIN - RIGHT_MARGIN)
-                for line in cont_lines:
-                    c.drawString(LEFT_MARGIN + 10, y, line)
-                    y -= 14
-                    if y < BOTTOM_MARGIN:
-                        c.showPage()
-                        y = height - TOP_MARGIN
-
-                c.setFont("Helvetica-Bold", 12)
-                c.drawString(LEFT_MARGIN, y, f"Livello rischio: {livello.capitalize()}")
-                y -= 30
-
-            except Attacco.DoesNotExist:
-                y -= 20
-
-            if domande:
-                c.setFont("Helvetica-Bold", 12)
-                c.drawString(LEFT_MARGIN, y, "Domande:")
-                y -= 15
-                c.setFont("Helvetica", 11)
-                for domanda in domande:
-                    c.drawString(LEFT_MARGIN + 20, y, f"- {domanda}")
-                    y -= 14
-                    if y < BOTTOM_MARGIN:
-                        c.showPage()
-                        y = height - TOP_MARGIN
-
-            y -= 30
-            if y < BOTTOM_MARGIN:
-                c.showPage()
-                y = height - TOP_MARGIN
-
-    c.save()
-    buffer.seek(0)
-    return FileResponse(buffer, as_attachment=True, filename="report_rilevamento_attacco.pdf")
+    doc.build(elements)
+    pdf = buffer.getvalue()
+    buffer.close()
+    return ContentFile(pdf)

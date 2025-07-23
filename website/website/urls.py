@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 from enciclopedia.views import enciclopedia_indice, enciclopedia_attacchi, index, rilevamento_attacco, \
-    risultati_attacco, genera_report_attacco_pdf
+    risultati_attacco, generate_pdf_report
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -32,7 +32,7 @@ urlpatterns = [
     path('enciclopedia_attacchi/<int:attacco_id>/', enciclopedia_attacchi, name='enciclopedia_attacchi'),
     path('rilevamento', rilevamento_attacco, name='rilevamento_attacco'),
     path('risultati/', risultati_attacco, name='risultati_attacco'),
-    path('report-pdf/', genera_report_attacco_pdf, name='genera_report_attacco_pdf'),
+    path('scarica_pdf/<int:esecuzione_id>/', generate_pdf_report, name='genera_report_attacco_pdf'),
     path('login/', include("login.urls")),
     path('registration/', registration, name="registration"),
     path('analizzatoreMessaggi/', include("analizzatoreMessaggi.urls")),

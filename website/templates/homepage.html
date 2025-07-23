@@ -15,17 +15,28 @@
             <p class="fs-2">
                 Storico Analisi
             </p>
-            <br>
+
             <div class="col-md-6">
                 {% for report in reports %}
-                    <div>
-                        <a href="{{ report.rilevamento_attacco.pdf_report.url }}">{{ report.rilevamento_attacco.titolo }}</a>
-                        - {{ report.data_esecuzione|date:"d/m/Y H:i" }}
+            <div>
+                {% if report.pdf_report %}
+                    <a href="{{ report.pdf_report.url }}">
+                        <strong>Analisi: {{ report.rilevamento_attacco.titolo }}</strong>
+                    </a><br>
+                    Data: {{ report.data_esecuzione|date:"d/m/Y" }}<br>
+                    Ora: {{ report.ora_esecuzione|time:"H:i" }}
+                {% else %}
+                    <strong>Analisi: {{ report.rilevamento_attacco.titolo }}</strong><br>
+                    (PDF non disponibile)<br>
+                    Data: {{ report.data_esecuzione|date:"d/m/Y" }}<br>
+                    Ora: {{ report.ora_esecuzione|time:"H:i" }}
+                {% endif %}
                     </div>
                 {% empty %}
                     <p>Nessuna analisi trovata.</p>
                 {% endfor %}
-
+            <hr>
+            <br>
                 {% for consult in consultazioni %}
                     <div>
                         <strong>{{ consult.attacco.nome_attacco }}</strong><br>

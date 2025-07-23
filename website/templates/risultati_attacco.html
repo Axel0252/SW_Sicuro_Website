@@ -2,6 +2,9 @@
 {% block title %}Risultati Rilevamento Attacco | CyberDefender{% endblock %}
 
 {% block content %}
+<br/>
+<a href="{% url "login" %}}" class="text-decoration-none text-reset text-bordeaux text-start">⭠ Indietro</a>
+<br/>
 <div class="container my-5">
     <h2>Risultati dell'analisi</h2>
 
@@ -15,14 +18,18 @@
                 <p><strong>Esito:</strong> {{ risultato.esito }}</p>
 
                 {% if risultato.titolo != "Nessun attacco rilevato" %}
-                    {% for attacco in attacchi_dettagli %}
-                        {% if attacco.nome_attacco == risultato.titolo %}
-                            <p><strong>Descrizione:</strong> {{ attacco.descrizione }}</p>
-                            <p><strong>Livello di rischio:</strong> {{ attacco.livello_rischio }}</p>
-                            <p><strong>Contromisure:</strong> {{ attacco.contromisure }}</p>
+                    <p><strong>Descrizione:</strong><br> {{ risultato.descrizione|linebreaksbr }}</p>
+                    <p><strong>Contromisure:</strong><br> {{ risultato.contromisure|linebreaksbr }}</p>
+                    <p><strong>Livello di rischio:</strong> {{ risultato.livello_rischio }}</p>
 
+
+                    <div class="d-flex justify-content-center mt-4">
+                        {% if risultato.pdf_url %}
+                            <a href="{{ risultato.pdf_url }}" target="_blank" class="btn btn-custom">Scarica PDF</a>
+                        {% else %}
+                            <span class="text-muted">PDF non disponibile</span>
                         {% endif %}
-                    {% endfor %}
+                    </div>
                 {% endif %}
             </div>
         </div>
@@ -30,11 +37,6 @@
 
     <div class="d-flex justify-content-center mt-4">
         <a href="{% url 'rilevamento_attacco' %}" class="btn btn-custom">Fai un altro Test</a>
-    </div>
-
-    <div class="d-flex justify-content-center mt-4">
-        <a href="{% url 'genera_report_attacco_pdf' %}" target="_blank" class="btn btn-custom">Scarica PDF</a>
-
     </div>
 </div>
 {% endblock %}
