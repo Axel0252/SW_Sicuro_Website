@@ -21,8 +21,23 @@ def checkLogin(request):
 
         if check_password(password, hashed_password):
             request.session['utente_id'] = user_data.id
-            reports = list(Esecuzione.objects.select_related('utente', 'rilevamento_attacco'))
-            return render(request, 'homepage.html', {'data':user_data, 'reports':reports})
+            reports = Esecuzione.objects.filter(utente=user_data) \
+                .select_related('rilevamento_attacco') \
+                .order_by('-data_esecuzione', '-ora_esecuzione')
+
+            consultazioni = ConsultazioneAttacco.objects.filter(utente=user_data) \
+                .select_related('attacco') \
+                .order_by('-data_consultazione', '-ora_consultazione')
+
+            richieste = RichiestaAnalisi.objects.select_related('messaggio_sospetto', 'numero_telefonico') \
+                .order_by('-data_richiesta', '-ora_richiesta')
+
+            return render(request, 'homepage.html', {
+                'data': user_data,
+                'reports': reports,
+                'consultazioni': consultazioni,
+                'richieste': richieste
+            })
         else:
             return render(request, 'loginIndex.html', {'error_message' : "Email e/o password non validi"})
 
@@ -41,7 +56,7 @@ def registrazione_privato(request):
             return render(request, 'registra_privato.html', {'error_message':"Questa mail è già associata ad un altro utente."})
 
         if form.is_valid():
-            hashed_password = make_password(form.password)
+            hashed_password = make_password(form.cleaned_data['password'])
 
             utente = Utente.objects.create(
                 email=form.cleaned_data['email'],
@@ -74,7 +89,7 @@ def registrazione_azienda(request):
             return render(request, 'registra_privato.html', {'error_message':"Questa mail è già associata ad un altro utente."})
 
         if form.is_valid():
-            hashed_password = make_password(form.password)
+            hashed_password = make_password(form.cleaned_data['password'])
 
             utente = Utente.objects.create(
                 email=form.cleaned_data['email'],
@@ -95,5 +110,5 @@ def registrazione_azienda(request):
             return render(request, 'loginIndex.html', {'success_message':"Registrazione avvenuta con successo"})
 
     else:
-        form = privateRegistrazionForm()
-    return render(request, 'registra_privato.html', {'form':form})
+        form = aziendaRegistrazionForm()
+    return render(request, 'registrazione_azienda.html', {'form':form})

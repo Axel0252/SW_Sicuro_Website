@@ -5,27 +5,62 @@
 
 {% block content %}
 
-<div class="row justify-content-center">
-    <p class="fs-2">
-        Benvenuto, {{ data.nome }} {{ data.cognome }}
-    </p>
-    <br>
-
-    <div class="col-sm-6">
+    <div class="row justify-content-center">
         <p class="fs-2">
-            Storico Analisi
+            Benvenuto, {{ data.nome }} {{ data.cognome }}
         </p>
         <br>
-        <div class="col-md-6">
-            {% for report in reports %}
-                {% if report.utente.id == data.id %}
-                    {{ report.rilevamento_attacco.pdf_report }}
-                    {{ report.data_esecuzione }}
-                {% endif %}
-            {% endfor %}
-        </div>
-    </div>
 
+        <div class="col-sm-6">
+            <p class="fs-2">
+                Storico Analisi
+            </p>
+            <br>
+            <div class="col-md-6">
+                {% for report in reports %}
+                    <div>
+                        <a href="{{ report.rilevamento_attacco.pdf_report.url }}">{{ report.rilevamento_attacco.titolo }}</a>
+                        - {{ report.data_esecuzione|date:"d/m/Y H:i" }}
+                    </div>
+                {% empty %}
+                    <p>Nessuna analisi trovata.</p>
+                {% endfor %}
+
+                {% for consult in consultazioni %}
+                    <div>
+                        <strong>{{ consult.attacco.nome_attacco }}</strong><br>
+                        Data: {{ consult.data_consultazione|date:"d/m/Y" }}<br>
+                        Ora: {{ consult.ora_consultazione|time:"H:i" }}
+                    </div>
+                {% empty %}
+                    <p>Nessuna consultazione trovata.</p>
+                {% endfor %}
+
+            {% if richieste %}
+                {% for richiesta in richieste %}
+                    <div>
+                        <strong>Data: </strong>{{ richiesta.data_richiesta|date:"d/m/Y" }}<br>
+                        <strong>Ora: </strong>{{ richiesta.ora_richiesta|time:"H:i" }}<br>
+
+                        {% if richiesta.numero_telefonico %}
+                            <strong>Numero Telefonico: </strong>{{ richiesta.numero_telefonico.numero }}<br>
+                            <strong>Operatore: </strong>{{ richiesta.numero_telefonico.operatore }}<br>
+                        {% endif %}
+                        {% if richiesta.messaggio_sospetto %}
+                            <strong>Messaggio Sospetto: </strong>{{ richiesta.messaggio_sospetto.testo|truncatewords:20 }}<br>
+                            <strong>Mittente: </strong>{{ richiesta.messaggio_sospetto.mittente }}<br>
+                        {% endif %}
+                        <strong>Esito: </strong>{{ richiesta.esito }}
+                    </div>
+                    <hr>
+                {% endfor %}
+            {% else %}
+                <p>Nessuna richiesta di analisi trovata.</p>
+            {% endif %}
+
+
+            </div>
+        </div>
 </div>
 
 
