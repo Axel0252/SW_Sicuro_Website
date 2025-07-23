@@ -11,7 +11,7 @@ class Utente(models.Model):
         ('azienda', 'Aziendale')
     ], default='azienda')
     nome_azienda = models.CharField(max_length=100, blank=True, null=True)
-    ruolo = models.CharField(max_length=50)
+    ruolo = models.CharField(max_length=50, blank=True, null=True)
     data_nascita = models.DateField(blank=True, null=True)
     eta = models.IntegerField(blank=True, null=True)
 
