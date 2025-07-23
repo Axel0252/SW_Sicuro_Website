@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from enciclopedia.models import *
-import hashlib
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.contrib.auth.hashers import make_password, check_password
+from django.db import transaction
 
 def index(request):
     return render(request, 'loginIndex.html')
@@ -10,28 +11,33 @@ def checkLogin(request):
     if request.method == "POST":
         email = request.POST.get("email")
         password = request.POST.get('password')
-        hashed_password = hashlib.md5(password.encode()).hexdigest()
 
         try:
-            user_data = Utente.objects.filter(email=email, password=hashed_password).get()
-            reports = list(Esecuzione.objects.select_related('utente', 'rilevamento_attacco'))
-            print(reports)
+            user_data = Utente.objects.filter(email=email).get()
         except ObjectDoesNotExist:
             return render(request, 'loginIndex.html', {'error_message' : "Email e/o password non validi"})
         
-        return render(request, 'homepage.html', {'data':user_data, 'reports':reports})
-    
+        hashed_password = user_data.password
+
+        if check_password(password, hashed_password):
+            reports = list(Esecuzione.objects.select_related('utente', 'rilevamento_attacco'))
+            return render(request, 'homepage.html', {'data':user_data, 'reports':reports})
+        else:
+            return render(request, 'loginIndex.html', {'error_message' : "Email e/o password non validi"})
+
+
 def registration(request):
     return render(request, 'sceltaUtente.html')
+
 
 def registrazione_privato(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         utente = Utente.objects.filter(email=email)
         if len(utente) != 0:
-            return render(request, 'registration.html', {'error_message':"Questa mail è già associata ad un altro utente."})
+            return render(request, 'registra_privato.html', {'error_message':"Questa mail è già associata ad un altro utente."})
         password = request.POST.get('passw')
-        hashed_password = hashlib.md5(password.encode()).hexdigest()
+        hashed_password = make_password(password)
         nome = request.POST.get('nome')
         cognome = request.POST.get('cognome')
         dataNascita = request.POST.get('dataNascita')
@@ -42,25 +48,29 @@ def registrazione_privato(request):
             data_nascita=dataNascita,
             nome=nome,
             cognome=cognome,
-            tipo_utente="privato"
-        )
+            tipo_utente='privato',
+            ruolo='privato',
+        )   
         try:
-            utente.full_clean() # Forza un controllo sull'aver inserito solo i valori consentiti
+            utente.full_clean()
         except ValidationError:
-            return render(request, 'index.html', {'error_message':"Dati inseriti non validi"})
-        # If all good
-        return render(request, 'index.html', {'success_message':"Registrazione avvenuta con successo"})
+            utente.delete()
+            return render(request, 'loginIndex.html', {'error_message' : "Dati inseriti non validi"})
+        
+        return render(request, 'loginIndex.html', {'success_message':"Registrazione avvenuta con successo"})
+    
     else:
-        return render(request, 'registration.html', {'error_message':"Problemi nella registrazione"}) # request error
+        return render(request, 'registra_privato.html', {'error_message':"Problemi nella registrazione"}) # request error
+
 
 def registrazione_azienda(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         utente = Utente.objects.filter(email=email)
         if len(utente) != 0:
-            return render(request, 'registration.html', {'error_message':"Questa mail è già associata ad un altro utente."})
+            return render(request, 'registrazione_azienda.html', {'error_message':"Questa mail è già associata ad un altro utente."})
         password = request.POST.get('passw')
-        hashed_password = hashlib.md5(password.encode()).hexdigest()
+        hashed_password = make_password(password)
         nome = request.POST.get('nome')
         cognome = request.POST.get('cognome')
         dataNascita = request.POST.get('dataNascita')
@@ -77,14 +87,17 @@ def registrazione_azienda(request):
                 nome_azienda=nome_azienda,
                 ruolo=ruolo
         )
+
         try:
-            utente.full_clean() # Forza un controllo sull'aver inserito solo i valori consentiti
+            utente.full_clean()
         except ValidationError:
-            return render(request, 'index.html', {'error_message':"Dati inseriti non validi"})
+            transaction.rollback()
+            return render(request, 'loginIndex.html', {'error_message' : "Dati inseriti non validi"})
+        
+        return render(request, 'loginIndex.html', {'success_message':"Registrazione avvenuta con successo"})
     
-        return render(request, 'index.html', {'success_message':"Registrazione avvenuta con successo"})
     else:
-        return render(request, 'registration.html', {'error_message':"Problemi nella registrazione"})
+        return render(request, 'registrazione_azienda.html', {'error_message':"Problemi nella registrazione"})
 
 def scelta_privato(request):
     return render(request, 'registra_privato.html')

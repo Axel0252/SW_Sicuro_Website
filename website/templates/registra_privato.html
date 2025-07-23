@@ -4,7 +4,10 @@
 
 {% block content %}
 
-{{ error_message }}
+<div class="text-danger">
+    {{ error_message }}
+</div>
+
 
 <form method="post" action="registrazione_privato">
     {% csrf_token %}
