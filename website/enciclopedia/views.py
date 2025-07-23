@@ -4,7 +4,7 @@ from django.utils import timezone
 from django.shortcuts import render, redirect, get_object_or_404, reverse
 from django.views.decorators.http import require_http_methods
 
-from enciclopedia.models import EnciclopediaAttacchi, ConsultazioneAttacco, Attacco, RilevamentoAttacco
+from enciclopedia.models import EnciclopediaAttacchi, ConsultazioneAttacco, Attacco, RilevamentoAttacco, Utente
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.utils import simpleSplit
@@ -54,12 +54,22 @@ def enciclopedia_attacchi(request, attacco_id):
     attacco.descrizione = formatta_testo(attacco.descrizione)
     attacco.contromisure = formatta_testo(attacco.contromisure)
 
-    if request.user.is_authenticated:
-        ConsultazioneAttacco.objects.create(
-            attacco=attacco,
-            utente=request.user,
-            ora_consultazione=timezone.now().time()
-        )
+    utente_id = request.session.get('utente_id')
+    if utente_id:
+        try:
+            utente = Utente.objects.get(id=utente_id)
+            ConsultazioneAttacco.objects.create(
+                attacco=attacco,
+                utente=utente,
+                ora_consultazione=timezone.now().time()
+            )
+            print("Consultazione salvata per utente:", utente.email)
+        except Utente.DoesNotExist:
+            print("Utente non trovato in sessione")
+        except Exception as e:
+            print("Errore salvataggio consultazione:", e)
+    else:
+        print("Nessun utente loggato in sessione")
 
     return render(request, 'enciclopedia_attacchi.html', {'attacco': attacco})
 

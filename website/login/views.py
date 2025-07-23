@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from enciclopedia.models import *
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.contrib.auth.hashers import make_password, check_password
@@ -20,11 +20,13 @@ def checkLogin(request):
         hashed_password = user_data.password
 
         if check_password(password, hashed_password):
+            request.session['utente_id'] = user_data.id
             reports = list(Esecuzione.objects.select_related('utente', 'rilevamento_attacco'))
             return render(request, 'homepage.html', {'data':user_data, 'reports':reports})
         else:
             return render(request, 'loginIndex.html', {'error_message' : "Email e/o password non validi"})
 
+    return redirect('login')
 
 def registration(request):
     return render(request, 'sceltaUtente.html')
