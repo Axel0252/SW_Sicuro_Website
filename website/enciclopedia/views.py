@@ -234,6 +234,14 @@ def risultati_attacco(request):
             "contromisure": ""
         }]
 
+    def pulisci_testo(testo):
+        return testo.replace('\\n', '\n').replace('\\', '').strip()
+
+    for e in esiti:
+        if e["titolo"] != "Nessun attacco rilevato":
+            e["descrizione"] = pulisci_testo(e.get("descrizione", ""))
+            e["contromisure"] = pulisci_testo(e.get("contromisure", ""))
+
     return render(request, "risultati_attacco.html", {
         "esiti": esiti,
     })
@@ -243,8 +251,7 @@ def generate_pdf_report(lista_esiti, utente):
     def pulisci_testo_per_pdf(testo):
         if not testo:
             return "N/A"
-        testo = testo.replace('\\ -', '\n-')
-        testo = testo.replace('\\', '')
+        testo = testo.replace('\\n', '\n').replace('\\', '')
         testo = testo.strip()
         return testo
 
