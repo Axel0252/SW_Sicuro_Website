@@ -79,9 +79,8 @@ def render_homepage(request):
         try:
             user_data = Utente.objects.get(id=user_id)
         except Utente.DoesNotExist:
-            # Se l'utente non esiste più, togli la sessione e reindirizza al login
             request.session.flush()
-            return redirect('login')  # metti il nome corretto della tua view login
+            return redirect('')
 
         reports = Esecuzione.objects.filter(utente=user_data) \
             .select_related('rilevamento_attacco') \
@@ -100,7 +99,8 @@ def render_homepage(request):
             'consultazioni': consultazioni,
             'richieste': richieste
         })
-    return redirect('loginIndex')
+    else:
+        return render(request, 'loginIndex.html', {'error_message' : "Esegui il login prima di accedere alla homepage"})
 
 
 def registration(request):
