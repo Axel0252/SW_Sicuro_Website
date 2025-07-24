@@ -8,7 +8,7 @@ from enciclopedia.views import generate_pdf_report
 from django.utils.timezone import now
 
 
-"""
+
 class EnciclopediaAttacchiViewTest(TestCase):
     def setUp(self):
         # Crea una categoria enciclopedia per la FK
@@ -99,7 +99,6 @@ class PdfReportTest(TestCase):
 
         # Controlla che il contenuto del PDF non sia vuoto
         self.assertTrue(len(pdf_file.read()) > 0)
-"""
 
 
 
