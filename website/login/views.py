@@ -2,7 +2,12 @@ from django.shortcuts import render, redirect
 from enciclopedia.models import *
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.contrib.auth.hashers import make_password, check_password
+from django.contrib.auth import logout
 from .forms import privateRegistrazionForm, aziendaRegistrazionForm
+from datetime import datetime
+
+import logging
+logger = logging.getLogger(__name__)
 
 def index(request):
     return render(request, 'loginIndex.html')
@@ -15,6 +20,7 @@ def checkLogin(request):
         try:
             user_data = Utente.objects.filter(email=email).get()
         except ObjectDoesNotExist:
+            logger.info( str(datetime.now()) +" login errato: Email Errata ("+ email +")" )
             return render(request, 'loginIndex.html', {'error_message' : "Email e/o password non validi"})
         
         hashed_password = user_data.password
@@ -41,7 +47,7 @@ def checkLogin(request):
         else:
             return render(request, 'loginIndex.html', {'error_message' : "Email e/o password non validi"})
 
-    return redirect('login')
+    return redirect('')
 
 def registration(request):
     return render(request, 'sceltaUtente.html')
@@ -100,7 +106,7 @@ def registrazione_azienda(request):
                 tipo_utente='azienda',
                 ruolo=form.cleaned_data['ruolo'],
                 nome_azienda=form.cleaned_data['nome_azienda']
-            )   
+            )
             try:
                 utente.full_clean()
             except ValidationError:
@@ -112,3 +118,8 @@ def registrazione_azienda(request):
     else:
         form = aziendaRegistrazionForm()
     return render(request, 'registrazione_azienda.html', {'form':form})
+
+
+def logoutUser(request):
+    logout(request)
+    return redirect("loginIndex")

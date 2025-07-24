@@ -68,7 +68,11 @@
             {% else %}
                 <p>Nessuna richiesta di analisi trovata.</p>
             {% endif %}
-
+            
+            <form action="logout" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-danger">Logout</button>
+            </form>
 
             </div>
         </div>

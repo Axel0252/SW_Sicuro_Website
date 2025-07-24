@@ -24,13 +24,8 @@ from django.core.files.base import ContentFile
 
 from io import BytesIO
 
-
-
-# Create your views here.
-
 def index(request):
     return render(request, 'index.html', {})
-    #return HttpResponse("Enciclopedia Test.")
 
 def enciclopedia_indice(request):
     categorie = EnciclopediaAttacchi.objects.all()
@@ -81,9 +76,6 @@ def enciclopedia_attacchi(request, attacco_id):
         print("Nessun utente loggato in sessione")
 
     return render(request, 'enciclopedia_attacchi.html', {'attacco': attacco})
-
-
-
 
 
 def rilevamento_attacco(request):

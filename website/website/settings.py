@@ -125,6 +125,7 @@ STATICFILES_DIRS = [
 ]
 
 
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -133,3 +134,66 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.Argon2PasswordHasher'
 ]
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{name} {levelname} {asctime} {module} {process:d} {thread:d} {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "[{levelname}] {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "loginHandler": {
+            "class": "logging.FileHandler",
+            "filename": "logs/login.log",
+            "level": "INFO",
+            "formatter": "simple",
+        },
+        "functionalityHandler": {
+            "class": "logging.FileHandler",
+            "filename": "logs/func.log",
+            "level": "INFO",
+            "formatter": "simple",
+        },
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "WARNING",
+    },
+    "loggers": {
+        "login.views": {
+            "level": "DEBUG",
+            "handlers": ["loginHandler"],
+            "propagate": False,
+        },
+        "analisi_numeri.views": {
+            "level": "DEBUG",
+            "handlers": ["functionalityHandler"],
+            "propagate": False,
+        },
+        "analizzatoreMessaggi.views": {
+            "level": "DEBUG",
+            "handlers": ["functionalityHandler"],
+            "propagate": False,
+        },
+        "enciclopedia.views": {
+            "level": "DEBUG",
+            "handlers": ["functionalityHandler"],
+            "propagate": False,
+        },
+    },
+}
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_SAVE_EVERY_REQUEST = False
