@@ -47,7 +47,7 @@ def checkLogin(request):
         else:
             return render(request, 'loginIndex.html', {'error_message' : "Email e/o password non validi"})
 
-    return redirect('')
+    return redirect('loginIndex')
 
 def render_homepage(request):
 
