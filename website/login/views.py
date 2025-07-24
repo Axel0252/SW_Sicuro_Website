@@ -5,6 +5,8 @@ from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth import logout
 from .forms import privateRegistrazionForm, aziendaRegistrazionForm
 from datetime import datetime
+from django.utils import timezone
+from datetime import timedelta
 
 import logging
 logger = logging.getLogger(__name__)
@@ -12,21 +14,39 @@ logger = logging.getLogger(__name__)
 def index(request):
     return render(request, 'loginIndex.html')
 
+
 def checkLogin(request):
+    # Imposto la durata della sessione a 5 minuti (300 secondi)
+    request.session.set_expiry(300)
+
     if request.method == "POST":
+        # Recupero il contatore dei tentativi falliti dalla sessione, se non esiste è 0
+        failed_attempts = request.session.get('failed_login_attempts', 0)
+
+        # Blocca il login se i tentativi falliti sono >= 3
+        if failed_attempts >= 3:
+            return render(request, 'loginIndex.html', {
+                'error_message': "Hai superato il numero massimo di tentativi. Riprova più tardi."
+            })
+
         email = request.POST.get("email")
         password = request.POST.get('password')
 
         try:
             user_data = Utente.objects.filter(email=email).get()
         except Utente.DoesNotExist:
-            logger.info( str(datetime.now()) +" login errato: Email Errata ("+ email +")" )
-            return render(request, 'loginIndex.html', {'error_message' : "Email e/o password non validi"})
-        
+            # Incremento i tentativi falliti in sessione
+            request.session['failed_login_attempts'] = failed_attempts + 1
+            logger.info(str(timezone.now()) + " login errato: Email Errata (" + email + ")")
+            return render(request, 'loginIndex.html', {'error_message': "Email e/o password non validi"})
+
         hashed_password = user_data.password
 
         if check_password(password, hashed_password):
+            # Login corretto: resetto i tentativi falliti
+            request.session['failed_login_attempts'] = 0
             request.session['user_session_id'] = user_data.id
+
             reports = Esecuzione.objects.filter(utente=user_data) \
                 .select_related('rilevamento_attacco') \
                 .order_by('-data_esecuzione', '-ora_esecuzione')
@@ -45,9 +65,12 @@ def checkLogin(request):
                 'richieste': richieste
             })
         else:
-            return render(request, 'loginIndex.html', {'error_message' : "Email e/o password non validi"})
+            # Password errata: incremento i tentativi falliti
+            request.session['failed_login_attempts'] = failed_attempts + 1
+            return render(request, 'loginIndex.html', {'error_message': "Email e/o password non validi"})
 
     return redirect('loginIndex')
+
 
 def render_homepage(request):
 
