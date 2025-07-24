@@ -25,17 +25,23 @@
             <img src="{% static 'img/logo.png' %}" alt="Logo" class="logo-img me-2">
             <strong class="fs-3 text-bordeaux">CyberDefender</strong>
         </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-            <ul class="navbar-nav">
+        <div class="collapse navbar-collapse justify-content-end align-items-center" id="navbarNav">
+            <ul class="navbar-nav me-3">
                 <li class="nav-item"><a class="nav-link text-bordeaux" href="/">Home</a></li>
                 <li class="nav-item"><a class="nav-link text-bordeaux" href="{% url 'enciclopedia_indice' %}">Enciclopedia</a></li>
                 <li class="nav-item"><a class="nav-link text-bordeaux" href="{% url 'numeri_index' %}">Analisi numero</a></li>
                 <li class="nav-item"><a class="nav-link text-bordeaux" href="{% url 'analizzatoreIndex' %}">Analisi messaggio</a></li>
                 <li class="nav-item"><a class="nav-link text-bordeaux" href="{% url 'rilevamento_attacco' %}">Rilevamento Attacco </a></li>
             </ul>
+
+            <!-- Icona per tornare a homepage.html -->
+            <a href="{% url 'render_homepage' %}" class="text-bordeaux fs-4" title="Torna alla homepage">
+                <i class="bi bi-person-circle"></i>
+            </a>
         </div>
     </div>
 </nav>

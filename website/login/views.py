@@ -49,6 +49,37 @@ def checkLogin(request):
 
     return redirect('')
 
+def render_homepage(request):
+
+    user_id = request.session.get('user_session_id')
+    if user_id:
+        try:
+            user_data = Utente.objects.get(id=user_id)
+        except Utente.DoesNotExist:
+            # Se l'utente non esiste più, togli la sessione e reindirizza al login
+            request.session.flush()
+            return redirect('login')  # metti il nome corretto della tua view login
+
+        reports = Esecuzione.objects.filter(utente=user_data) \
+            .select_related('rilevamento_attacco') \
+            .order_by('-data_esecuzione', '-ora_esecuzione')
+
+        consultazioni = ConsultazioneAttacco.objects.filter(utente=user_data) \
+            .select_related('attacco') \
+            .order_by('-data_consultazione', '-ora_consultazione')
+
+        richieste = RichiestaAnalisi.objects.select_related('messaggio_sospetto', 'numero_telefonico') \
+            .order_by('-data_richiesta', '-ora_richiesta')
+
+        return render(request, 'homepage.html', {
+            'data': user_data,
+            'reports': reports,
+            'consultazioni': consultazioni,
+            'richieste': richieste
+        })
+    return redirect('loginIndex')
+
+
 def registration(request):
     return render(request, 'sceltaUtente.html')
 

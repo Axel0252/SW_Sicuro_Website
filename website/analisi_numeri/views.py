@@ -74,7 +74,7 @@ def analisi_numeri(request):
                 "tipo": tipo.capitalize()
             }
 
-        return render(request, "analisi_numeri.html", {
-            "result": result,
-            "message": message
-        })
+    return render(request, "analisi_numeri.html", {
+        "result": result,
+        "message": message
+    })
