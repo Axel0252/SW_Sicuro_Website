@@ -19,14 +19,14 @@ def checkLogin(request):
 
         try:
             user_data = Utente.objects.filter(email=email).get()
-        except ObjectDoesNotExist:
+        except Utente.DoesNotExist:
             logger.info( str(datetime.now()) +" login errato: Email Errata ("+ email +")" )
             return render(request, 'loginIndex.html', {'error_message' : "Email e/o password non validi"})
         
         hashed_password = user_data.password
 
         if check_password(password, hashed_password):
-            request.session['utente_id'] = user_data.id
+            request.session['user_session_id'] = user_data.id
             reports = Esecuzione.objects.filter(utente=user_data) \
                 .select_related('rilevamento_attacco') \
                 .order_by('-data_esecuzione', '-ora_esecuzione')
@@ -121,5 +121,9 @@ def registrazione_azienda(request):
 
 
 def logoutUser(request):
-    logout(request)
+    try:
+        del request.session["user_session_id"]
+    except KeyError:
+        print("KeyError Exception")
+        pass
     return redirect("loginIndex")

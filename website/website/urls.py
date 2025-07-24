@@ -37,5 +37,6 @@ urlpatterns = [
     path('registration/', registration, name="registration"),
     path('analizzatoreMessaggi/', include("analizzatoreMessaggi.urls")),
     path('analisi_numeri/', include("analisi_numeri.urls")),
+    path('rilevamento_attacco', rilevamento_attacco, name="rilevamento_attacco"),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
