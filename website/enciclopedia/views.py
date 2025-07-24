@@ -211,7 +211,7 @@ def rilevamento_attacco(request):
 
 
 def risultati_attacco(request):
-    utente_id = request.session.get('utente_id')
+    utente_id =  request.session.get('user_session_id')
     if not utente_id:
         return redirect('login')
 
