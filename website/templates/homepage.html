@@ -4,12 +4,25 @@
 {% block title %}Homepage | CyberDefender{% endblock %}
 
 {% block content %}
+    <br>
+<div class="text-end">
+    <form action="logout" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-danger">Logout</button>
+    </form>
+    <br>
+
+        <a href="{% url 'rilevamento_attacco' %}" class="btn btn-custom">Rilevamento Attacco</a>
+
+</div>
 
     <div class="row justify-content-center">
         <p class="fs-2">
             Benvenuto, {{ data.nome }} {{ data.cognome }}
         </p>
+
         <br>
+
 
         <div class="col-sm-6">
             <p class="fs-2">
@@ -69,10 +82,7 @@
                 <p>Nessuna richiesta di analisi trovata.</p>
             {% endif %}
             
-            <form action="logout" method="post">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-outline-danger">Logout</button>
-            </form>
+
 
             </div>
         </div>

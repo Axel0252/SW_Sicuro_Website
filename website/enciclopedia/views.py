@@ -1,11 +1,11 @@
 import os
-
 from django.http import HttpResponse, FileResponse
 from django.shortcuts import render, redirect, get_object_or_404, reverse
 from django.utils import timezone
 from django.utils.timezone import now
 from django.utils.html import escape, mark_safe
 from django.conf import settings
+from pyexpat.errors import messages
 from reportlab.platypus import Image, Paragraph, Spacer, SimpleDocTemplate
 
 from enciclopedia.models import (
@@ -78,18 +78,22 @@ def enciclopedia_attacchi(request, attacco_id):
     return render(request, 'enciclopedia_attacchi.html', {'attacco': attacco})
 
 
+
 def rilevamento_attacco(request):
     def clean_testo(testo):
         return testo.replace('\\n', '\n').replace('\\', '').strip()
 
-    utente_id = request.session.get('utente_id')
-    if not utente_id:
-        return redirect('login')
+    utente_id =  request.session.get('user_session_id')
 
+
+    if not utente_id:
+        return render(request, 'rilevamento_attacco.html', {
+            'error': "Per eseguire questa funzionalità è necessario eseguire il login."
+        })
     try:
         utente = Utente.objects.get(id=utente_id)
     except Utente.DoesNotExist:
-        return redirect('login')
+        return redirect('rilevamento_attacco')
 
     attacchi = RilevamentoAttacco.objects.all()
     tutte_domande = []
@@ -207,7 +211,7 @@ def rilevamento_attacco(request):
 
 
 def risultati_attacco(request):
-    utente_id = request.session.get('utente_id')
+    utente_id =  request.session.get('user_session_id')
     if not utente_id:
         return redirect('login')
 

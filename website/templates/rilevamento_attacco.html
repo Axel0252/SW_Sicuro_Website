@@ -5,8 +5,13 @@
 
 {% block content %}
 <br/>
-<a href="{% url 'index' %}" class="text-decoration-none text-reset text-bordeaux text-start">⭠ Indietro</a>
-<br/>
+<a href="{% url 'render_homepage' %}" class="text-decoration-none text-reset text-bordeaux text-start">⭠ Indietro</a>
+
+<br>
+
+{% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+{% else %}
 <div class="d-flex justify-content-center">
 <div class="col-md-6 mb-3">
     <div class="contact-box p-3 border rounded">
@@ -59,10 +64,11 @@
             </ol>
 
             <div class="d-flex justify-content-center mt-4">
-                <button type="submit" class="btn btn-custom">Invia Risposte</button>
+                <a href="{% url 'risultati_attacco' %}" class="btn btn-custom">Invia</a>
             </div>
         </form>
     </div>
 </div>
 </div>
+    {% endif %}
 {% endblock %}
