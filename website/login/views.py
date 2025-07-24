@@ -19,14 +19,14 @@ def checkLogin(request):
 
         try:
             user_data = Utente.objects.filter(email=email).get()
-        except ObjectDoesNotExist:
+        except Utente.DoesNotExist:
             logger.info( str(datetime.now()) +" login errato: Email Errata ("+ email +")" )
             return render(request, 'loginIndex.html', {'error_message' : "Email e/o password non validi"})
         
         hashed_password = user_data.password
 
         if check_password(password, hashed_password):
-            request.session['utente_id'] = user_data.id
+            request.session['user_session_id'] = user_data.id
             reports = Esecuzione.objects.filter(utente=user_data) \
                 .select_related('rilevamento_attacco') \
                 .order_by('-data_esecuzione', '-ora_esecuzione')
@@ -48,6 +48,37 @@ def checkLogin(request):
             return render(request, 'loginIndex.html', {'error_message' : "Email e/o password non validi"})
 
     return redirect('loginIndex')
+
+def render_homepage(request):
+
+    user_id = request.session.get('user_session_id')
+    if user_id:
+        try:
+            user_data = Utente.objects.get(id=user_id)
+        except Utente.DoesNotExist:
+            # Se l'utente non esiste più, togli la sessione e reindirizza al login
+            request.session.flush()
+            return redirect('login')  # metti il nome corretto della tua view login
+
+        reports = Esecuzione.objects.filter(utente=user_data) \
+            .select_related('rilevamento_attacco') \
+            .order_by('-data_esecuzione', '-ora_esecuzione')
+
+        consultazioni = ConsultazioneAttacco.objects.filter(utente=user_data) \
+            .select_related('attacco') \
+            .order_by('-data_consultazione', '-ora_consultazione')
+
+        richieste = RichiestaAnalisi.objects.select_related('messaggio_sospetto', 'numero_telefonico') \
+            .order_by('-data_richiesta', '-ora_richiesta')
+
+        return render(request, 'homepage.html', {
+            'data': user_data,
+            'reports': reports,
+            'consultazioni': consultazioni,
+            'richieste': richieste
+        })
+    return redirect('loginIndex')
+
 
 def registration(request):
     return render(request, 'sceltaUtente.html')
@@ -121,5 +152,9 @@ def registrazione_azienda(request):
 
 
 def logoutUser(request):
-    logout(request)
+    try:
+        del request.session["user_session_id"]
+    except KeyError:
+        print("KeyError Exception")
+        pass
     return redirect("loginIndex")
