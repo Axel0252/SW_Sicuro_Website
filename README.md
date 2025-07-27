@@ -19,6 +19,7 @@ CyberDefender è una web app pensata per aiutare privati e aziende a riconoscere
 ## Modello Entità-Relazione
 
 Il modello Entità-Relazione rappresenta le entità principali del sistema e le loro relazioni, permettendo la gestione strutturata e coerente di utenti, contenuti dell’enciclopedia degli attacchi, messaggi e numeri da analizzare, nonché delle domande presenti nel modulo di rilevamento, i cui risultati vengono salvati in report PDF personalizzati.
+![pss_diagramma_er_ottimizzato.drawio4.png](pss_diagramma_er_ottimizzato.drawio4.png)
 
 --- 
 
