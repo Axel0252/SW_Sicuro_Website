@@ -140,6 +140,6 @@ L’evento di consultazione viene registrato in modo sicuro nei log, con dati co
 Infine, i dati vengono inviati all’interfaccia utente per la visualizzazione completa della scheda informativa, completando così la consultazione.
 
 ## Licenza
-Questo progetto è rilasciato sotto licenza **MIT**.
+Questo progetto è rilasciato sotto **licenza MIT**.
 Consulta il file LICENSE per maggiori dettagli.
 
