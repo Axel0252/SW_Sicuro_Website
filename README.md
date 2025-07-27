@@ -85,29 +85,34 @@ Per eseguire l'applicazione, è necessario:
 ```bash
 git clone https://github.com/Axel0252/SW_Sicuro_Website
 cd Progetto_BdD
+```
 Creare e attivare un ambiente virtuale:
 
 ```bash
 python -m venv venv
+```
 # Linux/macOS
 ```bash
 source venv/bin/activate
+```
 # Windows Powershell
 ```bash
 .\.venv\Scripts\Activate.ps1
+```
 # Windows cmd
 ```bash
 .\.venv\Scripts\activate.bat
+```
 Installare le dipendenze:
 ```bash
 pip install -r requirements.txt
+```
 Se non si dispone di un file requirements.txt, si può installare manualmente:
 ```bash
-
-
 pip install django mysqlclient
+```
 
-##Configurazione del Database:
+## Configurazione del Database:
 CyberDefender utilizza SQLite3 come database predefinito, che è integrato di default in Django e non richiede configurazioni esterne complesse.
 Per utilizzare SQLite3, assicurati che nel file settings.py la configurazione del database sia simile a questa:
 ```bash
